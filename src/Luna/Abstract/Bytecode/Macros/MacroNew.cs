@@ -1,0 +1,1 @@
+// new + dup + invokespecial
