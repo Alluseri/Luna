@@ -1,6 +1,8 @@
+using Alluseri.Luna.Abstract;
 using Alluseri.Luna.Abstract.Bytecode;
 using Alluseri.Luna.Internals;
 using Alluseri.Luna.Utils;
+using BenchmarkDotNet.Running;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -242,7 +244,9 @@ public static class Program {
 	}
 
 	public static void Main(string[] Args) {
-		using Stream F = File.OpenRead(@"test/class/clean/InvokeDynamic.class");
+		// BenchmarkRunner.Run<Benchmark>();
+
+		/*using Stream F = File.OpenRead(@"test/class/clean/InvokeDynamic.class");
 		Stopwatch Sw = Stopwatch.StartNew();
 		InternalClass Ic = new(F);
 		Sw.Stop();
@@ -279,7 +283,7 @@ public static class Program {
 				Console.WriteLine($"\tMethod is abstract.");
 			} else
 				Console.WriteLine($"\tIllegal Code Attribute (or missing).");
-		}
+		}*/
 
 		//for (ushort i = 1; i <= Ic.ConstantPool.Count; i++)
 		//	Console.WriteLine(i + "(" + i.ToString("X4") + "): " + Ic.ConstantPool[i]);

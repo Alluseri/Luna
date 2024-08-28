@@ -7,9 +7,9 @@ namespace Alluseri.Luna.Abstract;
 public class LunaClass {
 	public ushort JavaVersion;
 	public ClassAccessFlags AccessFlags;
-	public FullClassNameDescriptor Name;
-	public FullClassNameDescriptor? Super = new("java/lang/Object");
-	public readonly List<FullClassNameDescriptor> Interfaces = new();
+	public string Name;
+	public string? Super = "java/lang/Object";
+	public readonly List<string> Interfaces = new();
 	public readonly List<Field> Fields = new();
 	//public readonly List<Method> Methods = new();
 	//public readonly List<Annotation> Annotations = new();

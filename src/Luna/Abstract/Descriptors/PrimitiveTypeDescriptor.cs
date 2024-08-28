@@ -19,8 +19,23 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 	}) {
 		this.Type = Type;
 	}
-}
 
-public enum PrimitiveType {
-	Byte, Char, Double, Float, Int, Long, Short, Boolean, Void
+	public static PrimitiveTypeDescriptor? ForCharacter(char C) {
+		return C switch {
+			'B' => new(PrimitiveType.Byte),
+			'C' => new(PrimitiveType.Char),
+			'D' => new(PrimitiveType.Double),
+			'F' => new(PrimitiveType.Float),
+			'I' => new(PrimitiveType.Int),
+			'J' => new(PrimitiveType.Long),
+			'S' => new(PrimitiveType.Short),
+			'Z' => new(PrimitiveType.Boolean),
+			'V' => new(PrimitiveType.Void),
+			_ => null
+		};
+	}
+
+	public enum PrimitiveType {
+		Byte, Char, Double, Float, Int, Long, Short, Boolean, Void
+	}
 }

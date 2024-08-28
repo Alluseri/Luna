@@ -15,7 +15,7 @@ todo readme lol idk
 - Merged jar files: Luna doesn't implement a custom .zip reader like [LL-Java-Zip](https://github.com/Col-E/LL-Java-Zip).
 
 ## Why you may want to use Luna
-It's obfuscation-resilient and it's fast.
+It's obfuscation-resilient and it's fast. I'm actually kinda optimizing this thing, I even benchmarked some stuff.
 
 ## Why you may not want to use Luna
 This is a personal project. The abstractions in this library are unconventional, for example `LDC` is split into `InsnPushDouble`, `InsnPushFloat`, `InsnPushInteger`, `InsnPushLong` and `InsnPushString`. The ToString() representations don't match any existing JVM bytecode schemes, leaning towards MSIL instead: `IRETURN` -> `return.i`, `FSTORE` -> `store.f`, `LDC` -> `push`.
