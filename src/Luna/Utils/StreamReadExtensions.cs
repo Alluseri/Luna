@@ -21,9 +21,15 @@ internal static class StreamReadExtensions {
 		return Data;
 	}
 
-	public static bool ReadByte(this Stream Self, out byte Output) { // Hmm... Kinda cringe?
+	public static bool ReadByte(this Stream Self, out byte Output) {
 		int K = Self.ReadByte();
 		Output = (byte) K;
+		return K != -1;
+	}
+
+	public static bool ReadSByte(this Stream Self, out sbyte Output) {
+		int K = Self.ReadByte();
+		Output = (sbyte) K;
 		return K != -1;
 	}
 

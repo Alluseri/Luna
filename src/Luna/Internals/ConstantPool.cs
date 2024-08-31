@@ -38,13 +38,12 @@ public class ConstantPool : IEnumerable<ConstantInfo>, IEnumerable {
 		return 0;
 	}
 
-	// Have to use Count+1 when iterating over this:
-	public ConstantInfo this[ushort Index] => Pool[Index - 1]; // DESIGN: It might be better to return ConstantInfo? here.
-	public ConstantInfo this[int Index] => Pool[Index];
-
 	public T Value<T>(ushort Index) where T : ConstantInfo => (T) this[Index];
 
 	public int Count => Pool.Count;
+
+	public ConstantInfo this[ushort Index] => Pool[Index - 1]; // JVM Spec :fire:
+	public ConstantInfo this[int Index] => Pool[Index];
 
 	public IEnumerator<ConstantInfo> GetEnumerator() {
 		for (int i = 0; i < Pool.Count; i++) {

@@ -64,4 +64,5 @@ internal static class StreamWriteExtensions {
 	}
 
 	public static void Write(this Stream Self, byte Data) => Self.WriteByte(Data);
+	public static void Write(this Stream Self, sbyte Data) => Self.WriteByte((byte) Data);
 }

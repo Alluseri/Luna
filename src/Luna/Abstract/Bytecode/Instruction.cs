@@ -10,24 +10,24 @@ namespace Alluseri.Luna.Abstract.Bytecode;
 
 // DESIGN: "Original opcode" form
 
-public abstract class Instruction : Linkable<Instruction> {
+public abstract class Instruction : Linkable<Instruction>, ISizeable {
+	public abstract int Size { get; }
+
 	public Instruction() {
 
 	}
 
-	protected Stream Ldc(Stream Stream, ushort PoolIndex, bool Wide = false) {
+	protected static Stream Ldc(Stream Stream, ushort PoolIndex, bool Wide = false) {
 		if (Wide || PoolIndex > byte.MaxValue) {
 			Stream.WriteByte((byte) (Wide ? Opcode.Ldc2_W : Opcode.Ldc_W));
 			Stream.Write(PoolIndex);
 		} else {
-			Stream.WriteByte((byte) Opcode.Ldc);
+			Stream.Write(Opcode.Ldc);
 			Stream.Write((byte) PoolIndex);
 		}
 		return Stream;
 	}
 
-	public abstract override bool Equals(object? Other);
-	public abstract override int GetHashCode();
 	public abstract override string ToString();
 
 	public abstract void Write(Stream Stream, InternalClass Class);
@@ -41,6 +41,7 @@ public abstract class Instruction : Linkable<Instruction> {
 		return (Opcode) Op switch {
 			Opcode.Nop => new InsnNop(),
 
+			#region Constants
 			Opcode.AConst_Null => new InsnPushNull(),
 
 			Opcode.IConst_M1 => new InsnPushInteger(-1),
@@ -61,18 +62,20 @@ public abstract class Instruction : Linkable<Instruction> {
 			Opcode.DConst_0 => new InsnPushDouble(0),
 			Opcode.DConst_1 => new InsnPushDouble(1),
 
-			// Opcode.BiPush => ,
-			// Opcode.SiPush => ,
+			Opcode.BiPush => Stream.ReadSByte(out sbyte V) ? new InsnPushInteger(V) : null,
+			Opcode.SiPush => Stream.ReadShort(out short V) ? new InsnPushInteger(V) : null,
 
 			Opcode.Ldc => Stream.ReadByte(out byte LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, false) : null,
 			Opcode.Ldc_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, false) : null,
 			Opcode.Ldc2_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, true) : null,
+			#endregion
 
+			#region Locals (Load)
 			Opcode.ILoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadInteger(LoadSlot) : null,
 			Opcode.LLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadLong(LoadSlot) : null,
 			Opcode.FLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadFloat(LoadSlot) : null,
 			Opcode.DLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadDouble(LoadSlot) : null,
-			Opcode.ALoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadReference(LoadSlot) : null,
+			Opcode.ALoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadRef(LoadSlot) : null,
 
 			Opcode.ILoad_0 => new InsnLoadInteger(0),
 			Opcode.ILoad_1 => new InsnLoadInteger(0),
@@ -94,25 +97,29 @@ public abstract class Instruction : Linkable<Instruction> {
 			Opcode.DLoad_2 => new InsnLoadDouble(2),
 			Opcode.DLoad_3 => new InsnLoadDouble(3),
 
-			Opcode.ALoad_0 => new InsnLoadReference(0),
-			Opcode.ALoad_1 => new InsnLoadReference(1),
-			Opcode.ALoad_2 => new InsnLoadReference(2),
-			Opcode.ALoad_3 => new InsnLoadReference(3),
+			Opcode.ALoad_0 => new InsnLoadRef(0),
+			Opcode.ALoad_1 => new InsnLoadRef(1),
+			Opcode.ALoad_2 => new InsnLoadRef(2),
+			Opcode.ALoad_3 => new InsnLoadRef(3),
+			#endregion
 
-			// Opcode.IALoad => ,
-			// Opcode.LALoad => ,
-			// Opcode.FALoad => ,
-			// Opcode.DALoad => ,
-			// Opcode.AALoad => ,
-			// Opcode.BALoad => ,
-			// Opcode.CALoad => ,
-			// Opcode.SALoad => ,
+			#region Arrays (Load)
+			Opcode.IALoad => new InsnLoadIntegerFromArray(),
+			Opcode.LALoad => new InsnLoadLongFromArray(),
+			Opcode.FALoad => new InsnLoadFloatFromArray(),
+			Opcode.DALoad => new InsnLoadDoubleFromArray(),
+			Opcode.AALoad => new InsnLoadRefFromArray(),
+			Opcode.BALoad => new InsnLoadByteFromArray(),
+			Opcode.CALoad => new InsnLoadCharFromArray(),
+			Opcode.SALoad => new InsnLoadShortFromArray(),
+			#endregion
 
+			#region Locals (Store)
 			Opcode.IStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreInteger(StoreSlot) : null,
 			Opcode.LStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreLong(StoreSlot) : null,
 			Opcode.FStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreFloat(StoreSlot) : null,
 			Opcode.DStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreDouble(StoreSlot) : null,
-			Opcode.AStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreReference(StoreSlot) : null,
+			Opcode.AStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreRef(StoreSlot) : null,
 
 			Opcode.IStore_0 => new InsnStoreInteger(0),
 			Opcode.IStore_1 => new InsnStoreInteger(0),
@@ -134,13 +141,24 @@ public abstract class Instruction : Linkable<Instruction> {
 			Opcode.DStore_2 => new InsnStoreDouble(2),
 			Opcode.DStore_3 => new InsnStoreDouble(3),
 
-			Opcode.AStore_0 => new InsnStoreReference(0),
-			Opcode.AStore_1 => new InsnStoreReference(1),
-			Opcode.AStore_2 => new InsnStoreReference(2),
-			Opcode.AStore_3 => new InsnStoreReference(3),
+			Opcode.AStore_0 => new InsnStoreRef(0),
+			Opcode.AStore_1 => new InsnStoreRef(1),
+			Opcode.AStore_2 => new InsnStoreRef(2),
+			Opcode.AStore_3 => new InsnStoreRef(3),
+			#endregion
 
-			// Some more dumb shit here
+			#region Arrays (Store) | INCOMPLETE
+			// Opcode.IAStore => ,
+			// Opcode.LAStore => ,
+			// Opcode.FAStore => ,
+			// Opcode.DAStore => ,
+			// Opcode.AAStore => ,
+			// Opcode.BAStore => ,
+			// Opcode.CAStore => ,
+			// Opcode.SAStore => ,
+			#endregion
 
+			#region Stack Manipulation
 			Opcode.Pop => new InsnPop(),
 			Opcode.Pop2 => new InsnPop2(),
 			Opcode.Dup => new InsnDup(),
@@ -150,19 +168,143 @@ public abstract class Instruction : Linkable<Instruction> {
 			Opcode.Dup2_X1 => new InsnDup2_X1(),
 			Opcode.Dup2_X2 => new InsnDup2_X2(),
 			Opcode.Swap => new InsnSwap(),
+			#endregion
 
-			// A shit ton more of opcodes
+			#region Arithmetic
+			Opcode.IAdd => new InsnAdd(ArithmeticOperand.Integer),
+			Opcode.LAdd => new InsnAdd(ArithmeticOperand.Long),
+			Opcode.FAdd => new InsnAdd(ArithmeticOperand.Float),
+			Opcode.DAdd => new InsnAdd(ArithmeticOperand.Double),
 
+			Opcode.ISub => new InsnSubtract(ArithmeticOperand.Integer),
+			Opcode.LSub => new InsnSubtract(ArithmeticOperand.Long),
+			Opcode.FSub => new InsnSubtract(ArithmeticOperand.Float),
+			Opcode.DSub => new InsnSubtract(ArithmeticOperand.Double),
+
+			Opcode.IMul => new InsnMultiply(ArithmeticOperand.Integer),
+			Opcode.LMul => new InsnMultiply(ArithmeticOperand.Long),
+			Opcode.FMul => new InsnMultiply(ArithmeticOperand.Float),
+			Opcode.DMul => new InsnMultiply(ArithmeticOperand.Double),
+
+			Opcode.IDiv => new InsnDivide(ArithmeticOperand.Integer),
+			Opcode.LDiv => new InsnDivide(ArithmeticOperand.Long),
+			Opcode.FDiv => new InsnDivide(ArithmeticOperand.Float),
+			Opcode.DDiv => new InsnDivide(ArithmeticOperand.Double),
+
+			Opcode.IRem => new InsnRemainder(ArithmeticOperand.Integer),
+			Opcode.LRem => new InsnRemainder(ArithmeticOperand.Long),
+			Opcode.FRem => new InsnRemainder(ArithmeticOperand.Float),
+			Opcode.DRem => new InsnRemainder(ArithmeticOperand.Double),
+
+			Opcode.INeg => new InsnNegate(ArithmeticOperand.Integer),
+			Opcode.LNeg => new InsnNegate(ArithmeticOperand.Long),
+			Opcode.FNeg => new InsnNegate(ArithmeticOperand.Float),
+			Opcode.DNeg => new InsnNegate(ArithmeticOperand.Double),
+			#endregion
+
+			#region Arithmetic (Bitwise)
+			Opcode.IShl => new InsnShiftLeft(BitwiseOperand.Integer),
+			Opcode.LShl => new InsnShiftLeft(BitwiseOperand.Long),
+
+			Opcode.IShr => new InsnShiftRight(BitwiseOperand.Integer),
+			Opcode.LShr => new InsnShiftRight(BitwiseOperand.Long),
+
+			// Opcode.IUShr => new Insn(),
+			// Opcode.LUShr => new Insn(),
+
+			Opcode.IAnd => new InsnAnd(BitwiseOperand.Integer),
+			Opcode.LAnd => new InsnAnd(BitwiseOperand.Long),
+
+			Opcode.IOr => new InsnOr(BitwiseOperand.Integer),
+			Opcode.LOr => new InsnOr(BitwiseOperand.Long),
+
+			Opcode.IXor => new InsnXor(BitwiseOperand.Integer),
+			Opcode.LXor => new InsnXor(BitwiseOperand.Long),
+			#endregion
+
+			// Opcode.IInc => new Insn()
+
+			#region Arithmetic (Casts)
+			// Opcode.I2L, => new Insn()
+			// Opcode.I2F, => new Insn()
+			// Opcode.I2D, => new Insn()
+
+			// Opcode.L2I, => new Insn()
+			// Opcode.L2F, => new Insn()
+			// Opcode.L2D, => new Insn()
+
+			// Opcode.F2I, => new Insn()
+			// Opcode.F2L, => new Insn()
+			// Opcode.F2D, => new Insn()
+
+			// Opcode.D2I, => new Insn()
+			// Opcode.D2L, => new Insn()
+			// Opcode.D2F, => new Insn()
+
+			// Opcode.I2B, => new Insn()
+			// Opcode.I2C, => new Insn()
+			// Opcode.I2S, => new Insn()
+			#endregion
+
+			#region Arithmetic (Comparison)
+			// Opcode.LCmp => new Insn(),
+			// Opcode.FCmpL => new Insn(),
+			// Opcode.FCmpG => new Insn(),
+			// Opcode.DCmpL => new Insn(),
+			// Opcode.DCmpG => new Insn(),
+			#endregion
+
+			// A shit ton more of control flow opcodes
+
+			#region Control Flow
 			Opcode.IReturn => new InsnReturnInteger(),
 			Opcode.LReturn => new InsnReturnLong(),
 			Opcode.FReturn => new InsnReturnFloat(),
 			Opcode.DReturn => new InsnReturnDouble(),
-			Opcode.AReturn => new InsnReturnReference(),
+			Opcode.AReturn => new InsnReturnRef(),
 			Opcode.Return => new InsnReturn(),
+			#endregion
+
+			Opcode.GetStatic => ReadFieldRef(Stream, Class.ConstantPool, out (string ClassName, FieldDescriptor Field)? Meta) ? new InsnGetStatic(Meta!.Value.ClassName, Meta!.Value.Field) : null,
+			Opcode.PutStatic => ReadFieldRef(Stream, Class.ConstantPool, out (string ClassName, FieldDescriptor Field)? Meta) ? new InsnPutStatic(Meta!.Value.ClassName, Meta!.Value.Field) : null,
+
+			Opcode.GetField => ReadFieldRef(Stream, Class.ConstantPool, out (string ClassName, FieldDescriptor Field)? Meta) ? new InsnGetField(Meta!.Value.ClassName, Meta!.Value.Field) : null,
+			Opcode.PutField => ReadFieldRef(Stream, Class.ConstantPool, out (string ClassName, FieldDescriptor Field)? Meta) ? new InsnPutField(Meta!.Value.ClassName, Meta!.Value.Field) : null,
+
+			#region Invokes | INCOMPLETE
+			Opcode.InvokeVirtual => ReadMethodRef(Stream, Class.ConstantPool, out (string ClassName, MethodDescriptor Method, bool Interface)? Meta) ? new InsnInvokeVirtual(Meta!.Value.ClassName, Meta.Value.Method, Meta.Value.Interface) : null,
+			Opcode.InvokeSpecial => ReadMethodRef(Stream, Class.ConstantPool, out (string ClassName, MethodDescriptor Method, bool Interface)? Meta) ? new InsnInvokeSpecial(Meta!.Value.ClassName, Meta.Value.Method, Meta.Value.Interface) : null,
+			Opcode.InvokeStatic => ReadMethodRef(Stream, Class.ConstantPool, out (string ClassName, MethodDescriptor Method, bool Interface)? Meta) ? new InsnInvokeStatic(Meta!.Value.ClassName, Meta.Value.Method, Meta.Value.Interface) : null,
+			// Opcode.InvokeInterface => ,
+			// Opcode.InvokeDynamic => ,
+			#endregion
 
 			// And just a few more
+
 			_ => throw new InvalidDataException($"Unknown opcode reached: {(Opcode) Op}") // DEBUGTRACE: In the future, this will just return null.
 		};
+	}
+
+	// DESIGN: Consider a less ugly way to do this, PLEASE PLEASE PLEASE:
+	protected static bool ReadMethodRef(Stream Stream, ConstantPool Pool, out (string ClassName, MethodDescriptor Method, bool Interface)? MethodRef) {
+		MethodRef = null;
+		if (!Stream.ReadUShort(out ushort PoolIndex))
+			return false;
+		ConstantInfo Ci = Pool[PoolIndex];
+		if (Ci is ConstantMethodRef ConNorm) {
+			MethodRef = (ConNorm.GetClassName(Pool), MethodDescriptor.FromSignature(Pool, ConNorm.GetNameAndType(Pool)), false);
+		} else if (Ci is ConstantInterfaceMethodRef ConInt) {
+			MethodRef = (ConInt.GetClassName(Pool), MethodDescriptor.FromSignature(Pool, ConInt.GetNameAndType(Pool)), true);
+		} else
+			return false;
+		return true;
+	}
+	protected static bool ReadFieldRef(Stream Stream, ConstantPool Pool, out (string ClassName, FieldDescriptor Method)? FieldRef) {
+		FieldRef = null;
+		if (!Stream.ReadUShort(out ushort PoolIndex) || Pool[PoolIndex] is not ConstantFieldRef ConFld)
+			return false;
+		FieldRef = (ConFld.GetClassName(Pool), FieldDescriptor.FromSignature(Pool, ConFld.GetNameAndType(Pool)));
+		return true;
 	}
 	private static Instruction? ReadLdc(ushort Index, ConstantPool Pool, bool Wide) {
 		ConstantInfo Ci = Pool[Index];

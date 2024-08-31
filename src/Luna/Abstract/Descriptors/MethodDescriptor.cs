@@ -1,18 +1,17 @@
 using Alluseri.Luna.Internals;
+using Alluseri.Luna.Utils;
 using System;
 using System.Collections.Generic;
 
 namespace Alluseri.Luna.Abstract;
-
-// DESIGN: One or more of these constructors should not make it into prod. I think.
 
 public class MethodDescriptor : Descriptor {
 	public TypeDescriptor ReturnType;
 	public string Name;
 	public CompoundTypeDescriptor Arguments;
 
-	public override string Term => $"{Name}({Arguments}){ReturnType}";
-	public string JvmType => $"({Arguments}){ReturnType}"; // TODO: This definitely needs a better name.
+	public override string Term => $"({Arguments}){ReturnType}";
+	public string FullDescriptor => $"{Name}({Arguments}){ReturnType}"; // TODO: Reconsider the name after Term is renamed to something more proper
 
 	public MethodDescriptor(TypeDescriptor ReturnType, string Name, CompoundTypeDescriptor Arguments) { // Java-style
 		this.ReturnType = ReturnType;
@@ -21,6 +20,11 @@ public class MethodDescriptor : Descriptor {
 	}
 
 	public MethodDescriptor(string Name, CompoundTypeDescriptor Arguments, TypeDescriptor ReturnType) : this(ReturnType, Name, Arguments) { } // LL-style
+
+	public ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantNameAndType(
+		Pool.CheckoutUtf8(Name),
+		Pool.CheckoutUtf8(Term)
+	));
 
 	public static MethodDescriptor FromSignature(string Name, string Signature) {
 		ReadOnlySpan<char> R = Signature;
