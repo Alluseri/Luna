@@ -10,12 +10,15 @@ That being said, the `Internals` namespace is fully done and production-ready, s
 
 You have to build this project from source so like just dont pls ok?
 
+## Important notice
+Please don't hesitate to open issues regarding functionality of the library. Instead of wondering to yourself "why tf is this method/field marked as internal when I clearly need it right now?", you should ask that question in a GitHub Issue and get it resolved directly.
+
 ## TODO
 todo readme lol idk
 
 ## Unsupported obfuscation techniques
 - Merged jar files: Luna doesn't implement a custom .zip reader like [LL-Java-Zip](https://github.com/Col-E/LL-Java-Zip).
-- Invalid descriptors: An exception is thrown if a descriptor cannot be parsed or is invalid.
+- Invalid descriptors: An exception is thrown if a descriptor cannot be parsed or is invalid. Annotations with invalid descriptors may be discarded without notice during the I->A transfer process.
 
 ## Why you may want to use Luna
 It's obfuscation-resilient and it's fast. I'm actually kinda optimizing this thing, I even benchmarked some stuff.

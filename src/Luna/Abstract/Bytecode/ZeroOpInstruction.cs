@@ -4,19 +4,15 @@ using Alluseri.Luna.Utils;
 using System.IO;
 
 public abstract class ZeroOpInstruction : Instruction {
-	public override int Size => 1;
-
 	private readonly Opcode Opcode;
 	private readonly string Mnemonic;
 
-	public ZeroOpInstruction(Opcode Opcode, string Mnemonic) {
+	public ZeroOpInstruction(Opcode Opcode, string Mnemonic) : base(1) {
 		this.Opcode = Opcode;
 		this.Mnemonic = Mnemonic;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
-		Stream.Write(Opcode);
-	}
+	internal override void Write(Stream Stream, InternalClass Class) => Stream.Write(Opcode);
 
 	public override string ToString() => Mnemonic;
 }

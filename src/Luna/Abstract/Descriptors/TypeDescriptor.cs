@@ -24,7 +24,7 @@ public abstract class TypeDescriptor : ConstantDescriptor {
 		throw new FormatException($"The type descriptor '{Descriptor}' is not valid.");
 	}
 
-	public static TypeDescriptor Parse(ReadOnlySpan<char> Descriptor) { // string approach is a tiny bit(6 ns) faster 
+	public static TypeDescriptor Parse(ReadOnlySpan<char> Descriptor) {
 		if (Descriptor.Length == 0)
 			throw new FormatException($"The type descriptor to be parsed is empty.");
 		PrimitiveTypeDescriptor? Primitive = PrimitiveTypeDescriptor.ForCharacter(Descriptor[0]);

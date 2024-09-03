@@ -9,8 +9,6 @@ namespace Alluseri.Luna.Abstract.Bytecode;
 // DESIGN: internal?
 
 public abstract class AbstractInsnInvoke : Instruction {
-	public override int Size => 3;
-
 	protected abstract Opcode Opcode { get; }
 	protected abstract string Instruction { get; }
 
@@ -18,13 +16,13 @@ public abstract class AbstractInsnInvoke : Instruction {
 	public MethodDescriptor Method;
 	public bool Interface;
 
-	public AbstractInsnInvoke(string ClassName, MethodDescriptor Method, bool Interface) {
+	public AbstractInsnInvoke(string ClassName, MethodDescriptor Method, bool Interface) : base(3) {
 		this.ClassName = ClassName;
 		this.Method = Method;
 		this.Interface = Interface;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
+	internal override void Write(Stream Stream, InternalClass Class) {
 		Stream.Write(Opcode);
 		Stream.Write(Class.ConstantPool.Checkout(Interface ? new ConstantInterfaceMethodRef(
 			Class.ConstantPool.Checkout(new ConstantClass(Class.ConstantPool.CheckoutUtf8(ClassName))),

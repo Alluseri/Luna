@@ -8,6 +8,8 @@ namespace Alluseri.Luna.Abstract.Bytecode;
 public class InsnPushInteger : Instruction {
 	public int Value;
 
+	private ushort PoolIndex;
+
 	public InsnPushInteger(int Value) {
 		this.Value = Value;
 	}
@@ -27,19 +29,34 @@ public class InsnPushInteger : Instruction {
 		this.Value = Value;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
+	internal override void Checkout(ConstantPool Pool) {
+		PoolIndex = 0;
+		Size = Value switch {
+			>= -1 and < 6 => 1,
+			>= sbyte.MinValue and <= sbyte.MaxValue => 2,
+			>= short.MinValue and <= short.MaxValue => 3,
+			_ => GetLdcSize(PoolIndex = Pool.Checkout(new ConstantInteger(Value)))
+		};
+	}
+
+	internal override void Write(Stream Stream, InternalClass Class) {
 		checked { // DEBUGTRACE: This shall be removed in production
-			if (Value >= -1 && Value < 6) {
-				Stream.Write(Opcode.IConst_0, Value);
-			} else if (Value >= sbyte.MinValue && Value <= sbyte.MaxValue) {
-				Stream.Write(Opcode.BiPush);
-				Stream.Write((sbyte) Value);
-			} else if (Value >= short.MinValue && Value <= short.MaxValue) {
-				Stream.Write(Opcode.SiPush);
-				Stream.Write((short) Value);
-			} else {
-				Ldc(Stream, Class.ConstantPool.Checkout(new ConstantInteger(Value)));
-			}
+			if (PoolIndex == 0) {
+				switch (Size) {
+					case 1:
+					Stream.Write(Opcode.IConst_0, Value);
+					break;
+					case 2:
+					Stream.Write(Opcode.BiPush);
+					Stream.Write((sbyte) Value);
+					break;
+					case 3:
+					Stream.Write(Opcode.SiPush);
+					Stream.Write((short) Value);
+					break;
+				}
+			} else
+				Ldc(Stream, PoolIndex);
 		}
 	}
 

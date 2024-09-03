@@ -323,14 +323,7 @@ namespace Alluseri.Luna {
 					Console.WriteLine($"Method {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}:");
 					CodeAttribute? Ca = (CodeAttribute?) Mi.Attributes.FirstOrDefault(K => K is CodeAttribute);
 					if (Ca != null) {
-						List<Instruction?> Instructions = new();
-						using (MemoryStream Mes = new(Ca.Bytecode, false)) {
-							while (Mes.Position < Mes.Length) {
-								Instruction? K = Instruction.Read(Mes, Ic);
-								Instructions.Add(K);
-								Console.WriteLine($"\t{K}");
-							}
-						}
+
 						Console.WriteLine($"(Total: {Instructions.Count})");
 					} else if (Mi.AccessFlags.HasFlag(MethodAccessFlags.ACC_ABSTRACT)) {
 						Console.WriteLine($"\tMethod is abstract.");

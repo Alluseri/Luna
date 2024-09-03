@@ -5,17 +5,15 @@ using System.IO;
 namespace Alluseri.Luna.Abstract.Bytecode;
 
 public class InsnPutStatic : Instruction {
-	public override int Size => 3;
-
 	public string ClassName;
 	public FieldDescriptor Field;
 
-	public InsnPutStatic(string ClassName, FieldDescriptor Field) {
+	public InsnPutStatic(string ClassName, FieldDescriptor Field) : base(3) {
 		this.ClassName = ClassName;
 		this.Field = Field;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
+	internal override void Write(Stream Stream, InternalClass Class) {
 		Stream.Write(Opcode.PutStatic);
 		Stream.Write(Field.CheckoutFieldRef(Class.ConstantPool, ClassName));
 	}

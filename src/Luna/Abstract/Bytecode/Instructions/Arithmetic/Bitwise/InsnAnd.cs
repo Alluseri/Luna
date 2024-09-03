@@ -6,18 +6,16 @@ using System.IO;
 namespace Alluseri.Luna.Abstract.Bytecode;
 
 public class InsnAnd : Instruction {
-	public override int Size => 1;
-
 	BitwiseOperand Operand;
 
-	public InsnAnd(BitwiseOperand Operand) {
+	public InsnAnd(BitwiseOperand Operand) : base(1) {
 		if (Operand > BitwiseOperand.Long)
 			throw new ArgumentOutOfRangeException("Illegal arithmetic operand for this operation.");
 
 		this.Operand = Operand;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
+	internal override void Write(Stream Stream, InternalClass Class) {
 		Stream.Write(Opcode.IAnd, (uint) Operand);
 	}
 

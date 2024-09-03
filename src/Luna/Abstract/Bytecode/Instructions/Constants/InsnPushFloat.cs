@@ -6,12 +6,20 @@ namespace Alluseri.Luna.Abstract.Bytecode;
 
 public class InsnPushFloat : Instruction {
 	public float Value;
+	private ushort PoolIndex;
 
 	public InsnPushFloat(float Value) {
 		this.Value = Value;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
+	internal override void Checkout(ConstantPool Pool) {
+		Size = Value switch {
+			0 or 1 or 2 => 1,
+			_ => GetLdcSize(PoolIndex = Pool.Checkout(new ConstantFloat(Value)))
+		};
+	}
+
+	internal override void Write(Stream Stream, InternalClass Class) {
 		switch (Value) {
 			case 0:
 			Stream.Write(Opcode.FConst_0);
@@ -23,7 +31,7 @@ public class InsnPushFloat : Instruction {
 			Stream.Write(Opcode.FConst_2);
 			break;
 			default:
-			Ldc(Stream, Class.ConstantPool.Checkout(new ConstantFloat(Value)));
+			Ldc(Stream, PoolIndex);
 			break;
 		}
 	}

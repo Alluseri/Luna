@@ -4,19 +4,18 @@ using System.IO;
 
 namespace Alluseri.Luna.Abstract.Bytecode;
 
+// TODO: Rewrite to use Checkout(), or maybe not, lol.
+
 public abstract class AbstractLocalsInstruction : Instruction {
 	private ushort _Slot;
 	public ushort Slot {
 		get => _Slot;
-		set => _Size = (_Slot = value) switch {
+		set => Size = (_Slot = value) switch {
 			<= 3 => 1,
 			<= byte.MaxValue => 2,
 			_ => 3
 		};
 	}
-
-	private int _Size;
-	public override int Size => _Size;
 
 	protected abstract Opcode SmallOpcode { get; }
 	protected abstract Opcode LargeOpcode { get; }
@@ -25,8 +24,8 @@ public abstract class AbstractLocalsInstruction : Instruction {
 		this.Slot = Slot;
 	}
 
-	public override void Write(Stream Stream, InternalClass Class) {
-		switch (_Size) {
+	internal override void Write(Stream Stream, InternalClass Class) {
+		switch (Size) {
 			case 1:
 			Stream.Write(SmallOpcode, Slot);
 			break;
