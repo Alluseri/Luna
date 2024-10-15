@@ -16,8 +16,8 @@ public class ConstantInvokeDynamic : ConstantInfo {
 		this.NameAndTypeIndex = NameAndTypeIndex;
 	}
 
-	public BootstrapMethod GetBootstrapMethod(InternalClass CF) => ((BootstrapMethodsAttribute) CF.Attributes.First(Attribute => Attribute is BootstrapMethodsAttribute)).BootstrapMethods[BootstrapMethodIndex];
-	public BootstrapMethod GetBootstrapMethod(BootstrapMethodsAttribute Attribute) => Attribute.BootstrapMethods[BootstrapMethodIndex];
+	public BootstrapMethod? GetBootstrapMethod(InternalClass CF) => ((BootstrapMethodsAttribute?) CF.Attributes.FirstOrDefault(Attribute => Attribute is BootstrapMethodsAttribute))?.Content[BootstrapMethodIndex]; // TODO: GetOrDefault for List lol
+	public BootstrapMethod GetBootstrapMethod(BootstrapMethodsAttribute Attribute) => Attribute.Content[BootstrapMethodIndex];
 	public ConstantNameAndType GetNameAndType(ConstantPool Pool) => (ConstantNameAndType) Pool[NameAndTypeIndex];
 
 	public override int GetHashCode() => HashCode.Combine(Tag, BootstrapMethodIndex, NameAndTypeIndex);

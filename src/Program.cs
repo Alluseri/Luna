@@ -1,9 +1,12 @@
-using Alluseri.Luna.Abstract.Bytecode;
+using Alluseri.Luna;
+using Alluseri.Luna.Bytecode;
 using Alluseri.Luna.Internals;
+using Alluseri.Luna.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Hashing;
 using System.Linq;
 
 namespace Alluseri.Luna {
@@ -140,7 +143,7 @@ namespace Alluseri.Luna {
 
 			Console.WriteLine(Sw.ElapsedMilliseconds + "ms");
 			Console.WriteLine("Source file: " + Ic.Attributes.FirstOrDefault(A => A is SourceFileAttribute)?.Cast<SourceFileAttribute>().GetName(Ic.ConstantPool));
-			int? Bootstraps = Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().BootstrapMethods.Length;
+			int? Bootstraps = Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().Content.Count;
 			if (Bootstraps.HasValue)
 				Console.WriteLine("Bootstrap method count: " + Bootstraps);
 
@@ -183,7 +186,7 @@ namespace Alluseri.Luna {
 
 				Console.WriteLine(Sw.ElapsedMilliseconds + "ms");
 				Console.WriteLine("Source file: " + Ic.Attributes.FirstOrDefault(A => A is SourceFileAttribute)?.Cast<SourceFileAttribute>().GetName(Ic.ConstantPool));
-				int? Bootstraps = Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().BootstrapMethods.Length;
+				int? Bootstraps = Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().Content.Count;
 				if (Bootstraps.HasValue)
 					Console.WriteLine("Bootstrap method count: " + Bootstraps);
 
@@ -224,7 +227,7 @@ namespace Alluseri.Luna {
 			Sw.Stop();
 			Console.WriteLine("Loaded class in " + Sw.ElapsedMilliseconds + "ms");
 			Console.WriteLine("Source file: " + Ic.Attributes.FirstOrDefault(A => A is SourceFileAttribute)?.Cast<SourceFileAttribute>().GetName(Ic.ConstantPool));
-			Console.WriteLine("Bootstrap method count: " + Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().BootstrapMethods.Length);
+			Console.WriteLine("Bootstrap method count: " + Ic.Attributes.FirstOrDefault(A => A is BootstrapMethodsAttribute)?.Cast<BootstrapMethodsAttribute>().Content.Count);
 			Console.WriteLine("It has " + Ic.Fields.Length + " fields");
 			Console.WriteLine("It has " + Ic.Methods.Length + " methods");
 			Console.WriteLine("It has " + Ic.Attributes.Length + " attributes:");
@@ -263,20 +266,19 @@ namespace Alluseri.Luna {
 					try {
 						CodeAttribute? Ca = (CodeAttribute?) Mi.Attributes.FirstOrDefault(K => K is CodeAttribute);
 						if (Ca != null) {
-							List<Instruction?> Instructions = new();
-							using (MemoryStream Mes = new(Ca.Bytecode, false)) {
-								int Tots = 0;
-								while (Mes.Position < Mes.Length) {
-									Instructions.Add(Instruction.Read(Mes, Ic));
-									Tots++;
-								}
-								// Didn't crash
-								All++;
-								Success++;
-								LinesPerSuccessfulMethod.Add(Tots);
+							List<Instruction>? Instructions = new CodeReader(Ic).Read(Ca);
+							if (Instructions == null) {
+								Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
+								continue;
 							}
+							All++;
+							Success++;
+							LinesPerSuccessfulMethod.Add(Instructions.Count);
 						}
 					} catch (InvalidDataException E) {
+						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+						All++;
+					} catch (NotImplementedException E) {
 						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
 						All++;
 					}
@@ -295,10 +297,93 @@ namespace Alluseri.Luna {
 		public static void Main(string[] Args) {
 			// BenchmarkRunner.Run<Benchmark>();
 
-			// CaseMassCollectUnknownInstructions("test/class/clean");
-			// CaseMassCollectUnknownInstructions("test/class/obfuscated");
+			CaseMassCollectUnknownInstructions("test/class/clean");
+			CaseMassCollectUnknownInstructions("test/class/obfuscated");
 
-			using Stream F = File.OpenRead(@"test/class/obfuscated/$$E.class");
+			/*ConstantPool Cp = new();
+
+			InternalClass Ic = new(
+				13,
+				Cp,
+				ClassAccessFlags.ACC_PUBLIC,
+				Cp.Checkout(new ConstantClass(Cp.CheckoutUtf8("dev/lunahook/Test"))),
+				Cp.Checkout(new ConstantClass(Cp.CheckoutUtf8("java/lang/Object"))),
+				Array.Empty<ushort>(),
+				Array.Empty<FieldInfo>(),
+				Array.Empty<MethodInfo>(),
+				Array.Empty<AttributeInfo>()
+			);
+
+			Label EscapeLab = new("MyEscapeLabel");
+			Label StackOverflowLab = new("RipStack");
+
+			List<Instruction> InsnList = new() {
+				new InsnPushInteger(40),
+				new InsnDup(),
+				new InsnStoreInteger(1),
+				new InsnPushInteger(3),
+				new InsnMultiply(ArithmeticOperand.Integer),
+				new InsnGoto(EscapeLab),
+				//StackOverflowLab,
+				//new InsnDup(),
+				//new InsnPushNull(),
+				//new InsnGoto(StackOverflowLab),
+				EscapeLab,
+				// TODO: PrimitiveType.Descriptor() extension method
+				new InsnInvokeStatic("dev/lunahook/Logger", new MethodDescriptor(
+					new PrimitiveTypeDescriptor(PrimitiveType.Void),
+					"logInteger",
+					new CompoundTypeDescriptor(
+						new PrimitiveTypeDescriptor(PrimitiveType.Int)
+					)
+				)),
+				new InsnReturn()
+			};
+
+			Console.WriteLine("Managed form:");
+			foreach (Instruction Insn in InsnList) {
+				Console.WriteLine($"\t{Insn}");
+			}
+			Console.WriteLine();
+
+			Console.WriteLine("Bytecode form:");
+			byte[] Bytecode = new CodeBuilder(Ic).Build(InsnList);
+			Console.WriteLine(Convert.ToHexString(Bytecode));
+			Console.WriteLine();
+
+			CodeAttribute Ca = new(8, 8, Bytecode, Array.Empty<ExceptionHandler>(), new[] {
+				new LineNumberTableAttribute(new[] {
+					new LineEntry(0, 4),
+					new LineEntry(4, 9)
+				})
+			});
+
+			Console.WriteLine("Disassembled form:");
+			List<Instruction>? Disasm = new CodeReader(Ic).Read(Ca);
+			if (Disasm == null)
+				Console.WriteLine("[Disassembly failed]");
+			else
+				foreach (Instruction Insn in Disasm) {
+					Console.WriteLine($"\t{Insn}");
+				}
+
+			Ic.Methods = new[] {
+				new MethodInfo(MethodAccessFlags.ACC_PUBLIC, Cp.CheckoutUtf8("runTest"), Cp.CheckoutUtf8("()V"), new[] {
+					Ca
+				})
+			};
+
+			using (FileStream Fs = File.OpenWrite("dummycf.class")) {
+				Ic.Checkout();
+				Ic.Write(Fs);
+			}
+			Console.WriteLine("Dummy CF saved to current directory.");
+
+			Console.WriteLine("Dummy CF demo read:");
+			CaseSingularCollect("dummycf.class");*/
+
+
+			/*using Stream F = File.OpenRead(@"test/class/obfuscated/$$E.class");
 			Stopwatch Sw = Stopwatch.StartNew();
 			InternalClass Ic = new(F);
 			Sw.Stop();
@@ -333,7 +418,7 @@ namespace Alluseri.Luna {
 				} catch (Exception E) {
 					Console.WriteLine(E);
 				}
-			}
+			}*/
 
 			//for (ushort i = 1; i <= Ic.ConstantPool.Count; i++)
 			//	Console.WriteLine(i + "(" + i.ToString("X4") + "): " + Ic.ConstantPool[i]);

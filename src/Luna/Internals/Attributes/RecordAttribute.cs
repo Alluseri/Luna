@@ -1,5 +1,6 @@
 using Alluseri.Luna.Utils;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,12 +8,14 @@ using System.Linq;
 namespace Alluseri.Luna.Internals;
 
 public class RecordAttribute : AttributeInfo {
-	public readonly RecordComponentInfo[] Components;
+	public IList<RecordComponentInfo> Components;
 
-	public RecordAttribute(RecordComponentInfo[] Components)
-		: base("Record", 2 + Components.Sum(Cmpt => 6 + GU.GetSize(Cmpt.Attributes))) {
+	public override int Size => 2 + Components.Sum(Cmpt => 6 + GU.GetSize(Cmpt.Attributes));
+
+	public RecordAttribute(IList<RecordComponentInfo> Components) : base("Record") {
 		this.Components = Components;
 	}
+	public RecordAttribute(RecordComponentInfo[] Components) : this(GU.AsList(Components)) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, Components);
 	public override bool Equals(object? Object) => Object is RecordAttribute Attr && Attr.Components.SequenceEqual(Components);
@@ -25,7 +28,7 @@ public class RecordAttribute : AttributeInfo {
 		if (!Substream.ReadUShort(out ushort ComponentsCount))
 			return new MalformedAttribute("Record", Store);
 
-		RecordComponentInfo[] Components = new RecordComponentInfo[ComponentsCount];
+		List<RecordComponentInfo> Components = new(ComponentsCount);
 		for (ushort i = 0; i < ComponentsCount; i++) {
 			if (
 				!Substream.ReadUShort(out ushort NameIndex) ||
@@ -34,13 +37,15 @@ public class RecordAttribute : AttributeInfo {
 			)
 				return new MalformedAttribute("Record", Store);
 
-			AttributeInfo[] Attributes = new AttributeInfo[AttributesCount];
+			List<AttributeInfo> Attributes = new(AttributesCount);
 			for (ushort j = 0; j < AttributesCount; j++) {
-				if ((Attributes[j] = AttributeInfo.Parse(Substream, Pool)!) == null)
+				AttributeInfo? Attr = AttributeInfo.Parse(Substream, Pool);
+				if (Attr == null)
 					return new MalformedAttribute("Record", Store);
+				Attributes.Add(Attr);
 			}
 
-			Components[i] = new RecordComponentInfo(NameIndex, DescriptorIndex, Attributes);
+			Components.Add(new(NameIndex, DescriptorIndex, Attributes));
 		}
 
 		return new RecordAttribute(Components);
@@ -56,8 +61,8 @@ public class RecordAttribute : AttributeInfo {
 	protected override void Write(Stream Stream) => throw new NotSupportedException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {
 		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
-		Stream.Write(Size - 6);
-		Stream.Write((ushort) Components.Length);
+		Stream.Write(Size);
+		Stream.Write((ushort) Components.Count);
 		foreach (RecordComponentInfo Rci in Components)
 			Rci.Write(Stream, Pool);
 	}

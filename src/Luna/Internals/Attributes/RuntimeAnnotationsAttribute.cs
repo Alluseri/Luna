@@ -7,12 +7,17 @@ using System.Linq;
 namespace Alluseri.Luna.Internals;
 
 public class RuntimeAnnotationsAttribute : AttributeInfo {
-	public readonly AnnotationInfo[] Annotations;
-	public readonly bool Visible;
+	public IList<AnnotationInfo> Annotations;
+	public bool Visible;
 
-	public RuntimeAnnotationsAttribute(AnnotationInfo[] Annotations, bool Visible) : base(Visible ? "RuntimeVisibleAnnotations" : "RuntimeInvisibleAnnotations", 2 + GU.GetSize(Annotations)) {
+	public override int Size => 2 + GU.GetSize(Annotations);
+
+	private static string GetName(bool Visible) => Visible ? "RuntimeVisibleAnnotations" : "RuntimeInvisibleAnnotations";
+
+	public RuntimeAnnotationsAttribute(IList<AnnotationInfo> Annotations, bool Visible) : base(GetName(Visible)) {
 		this.Annotations = Annotations;
 	}
+	public RuntimeAnnotationsAttribute(AnnotationInfo[] Annotations, bool Visible) : this(new List<AnnotationInfo>(Annotations), Visible) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, Annotations);
 	public override bool Equals(object? Object) => Object is RuntimeAnnotationsAttribute Attr && Attr.Visible == Visible && Attr.Annotations.SequenceEqual(Annotations);
@@ -23,19 +28,21 @@ public class RuntimeAnnotationsAttribute : AttributeInfo {
 		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
 
 		if (!Substream.ReadUShort(out ushort AnnotationCount))
-			return new MalformedAttribute(Visible ? "RuntimeVisibleAnnotations" : "RuntimeInvisibleAnnotations", Store);
+			return new MalformedAttribute(GetName(Visible), Store);
 
-		AnnotationInfo[] Annotations = new AnnotationInfo[AnnotationCount];
+		List<AnnotationInfo> Annotations = new(AnnotationCount);
 		for (ushort i = 0; i < AnnotationCount; i++) {
-			if ((Annotations[i] = AnnotationInfo.Parse(Substream)!) == null)
-				return new MalformedAttribute(Visible ? "RuntimeVisibleAnnotations" : "RuntimeInvisibleAnnotations", Store);
+			AnnotationInfo? Annotation = AnnotationInfo.Parse(Substream);
+			if (Annotation == null)
+				return new MalformedAttribute(GetName(Visible), Store);
+			Annotations.Add(Annotation);
 		}
 
 		return new RuntimeAnnotationsAttribute(Annotations, Visible);
 	}
 
 	protected override void Write(Stream Stream) {
-		Stream.Write((ushort) Annotations.Length);
+		Stream.Write((ushort) Annotations.Count);
 		foreach (AnnotationInfo Ann in Annotations) {
 			Ann.Write(Stream);
 		}

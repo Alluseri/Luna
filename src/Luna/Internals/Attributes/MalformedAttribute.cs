@@ -5,10 +5,12 @@ using System.Linq;
 namespace Alluseri.Luna.Internals;
 
 public class MalformedAttribute : AttributeInfo {
-	public readonly byte[] Data;
+	public byte[] Data;
 	const int TruncateBytes = 8;
 
-	public MalformedAttribute(string Name, byte[] Data) : base(Name, Data.Length) {
+	public override int Size => Data.Length;
+
+	public MalformedAttribute(string Name, byte[] Data) : base(Name) {
 		this.Data = Data;
 	}
 

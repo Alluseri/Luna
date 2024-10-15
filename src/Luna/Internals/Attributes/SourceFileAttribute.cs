@@ -5,9 +5,11 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class SourceFileAttribute : AttributeInfo {
-	public readonly ushort NameIndex;
+	public ushort NameIndex;
 
-	public SourceFileAttribute(ushort NameIndex) : base("SourceFile", 2) {
+	public override int Size => 2;
+
+	public SourceFileAttribute(ushort NameIndex) : base("SourceFile") {
 		this.NameIndex = NameIndex;
 	}
 

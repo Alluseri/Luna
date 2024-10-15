@@ -6,11 +6,13 @@ using System.Linq;
 namespace Alluseri.Luna.Internals;
 
 public class InvalidAttribute : AttributeInfo { // Specification: All bytes will be attempted to read, the remaining length will be filled with zeroes, not truncated.
-	public readonly ushort PoolIndex;
-	public readonly byte[] Data;
+	public ushort PoolIndex;
+	public byte[] Data;
 	const int TruncateBytes = 8;
 
-	public InvalidAttribute(ushort PoolIndex, byte[] Data) : base($"Luna:Invalid ({PoolIndex})", (uint) Data.Length) {
+	public override int Size => Data.Length;
+
+	public InvalidAttribute(ushort PoolIndex, byte[] Data) : base($"Luna:Invalid ({PoolIndex})") {
 		this.PoolIndex = PoolIndex;
 		this.Data = Data;
 	}

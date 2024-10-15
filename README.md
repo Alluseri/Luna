@@ -10,8 +10,10 @@ That being said, the `Internals` namespace is fully done and production-ready, s
 
 You have to build this project from source so like just dont pls ok?
 
+Also the API is currently HEAVILY inconsistent because I'm doing major refactors mid writing which is really REALLY stupid and I really do hate myself for this but yeah.
+
 ## Important notice
-Please don't hesitate to open issues regarding functionality of the library. Instead of wondering to yourself "why tf is this method/field marked as internal when I clearly need it right now?", you should ask that question in a GitHub Issue and get it resolved directly.
+Please don't hesitate to open issues regarding functionality of the library. Instead of wondering to yourself "why tf is this method/field marked as internal when I clearly need it right now?", "why does this method throw NotImplementedException?" or "why do I have to do this when I could have an easier way of doing this?", you should ask that question in a GitHub Issue and get it resolved directly.
 
 ## TODO
 todo readme lol idk

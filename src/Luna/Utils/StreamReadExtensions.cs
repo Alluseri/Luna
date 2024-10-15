@@ -36,26 +36,25 @@ internal static class StreamReadExtensions {
 	public static bool ReadSafe(this Stream Self, uint Length, out byte[] Data) {
 		if (Length <= ChunkSize) // This won't cause issues with allocation
 			return Self.Read(Data = new byte[Length]) == Length;
-		else if (Length > 0x7FFFFFC7) { // Not representable in C#
+		else if (Length > 0x7FFFFFC7) { // Not representable in C# (probably not Java either)
 			Data = Array.Empty<byte>();
 			return false;
 		} else { // Try chunked
 			uint FullChunkCount = Length / ChunkSize;
 			byte[][] FullChunks = new byte[FullChunkCount][];
 			for (uint k = 0; k < FullChunkCount; k++) {
-				if (Self.Read(FullChunks[k] = new byte[ChunkSize]) != ChunkSize) { // Hopefully we trip one of these
+				if (Self.Read(FullChunks[k] = new byte[ChunkSize]) != ChunkSize) {
 					Data = Array.Empty<byte>();
 					return false;
 				}
 			}
-			// Hopefully we never reach here
+
 			byte[] Remainder = new byte[Length - (FullChunkCount * ChunkSize)];
 			if (Self.Read(Remainder) != Remainder.Length) {
-				// Thank God
 				Data = Array.Empty<byte>();
 				return false;
 			}
-			// Depressing.
+
 			byte[] Full = new byte[Length];
 			int FullIndex = 0;
 

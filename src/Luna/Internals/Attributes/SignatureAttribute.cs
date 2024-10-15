@@ -5,9 +5,11 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class SignatureAttribute : AttributeInfo {
-	public readonly ushort PoolIndex;
+	public ushort PoolIndex;
 
-	public SignatureAttribute(ushort PoolIndex) : base("Signature", 2) {
+	public override int Size => 2;
+
+	public SignatureAttribute(ushort PoolIndex) : base("Signature") {
 		this.PoolIndex = PoolIndex;
 	}
 

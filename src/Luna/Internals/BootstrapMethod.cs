@@ -1,11 +1,13 @@
 using Alluseri.Luna.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Alluseri.Luna.Internals;
 
-public class BootstrapMethod : ISizeable {
+public class BootstrapMethod : ISizeable { // Decided that this should stay readonly.
 	public readonly ushort MethodHandleIndex;
 	public readonly ushort[] ArgumentIndexes;
 
@@ -21,11 +23,9 @@ public class BootstrapMethod : ISizeable {
 
 	public override int GetHashCode() => HashCode.Combine(MethodHandleIndex, ArgumentIndexes);
 	public override bool Equals(object? Object) => Object is BootstrapMethod BM && BM.MethodHandleIndex == MethodHandleIndex && BM.ArgumentIndexes.SequenceEqual(ArgumentIndexes);
-	public override string ToString() => $"{{ BootstrapMethod #{MethodHandleIndex} [ {GU.ToString(ArgumentIndexes.Select(Index => $"#{Index:X4}"))} ] }}";
+	public override string ToString() => $"{{ BootstrapMethod #{MethodHandleIndex} [ {GU.ToString(ArgumentIndexes.Select(Index => $"#{Index}"))} ] }}";
 
-	public static bool Parse(Stream Stream, out BootstrapMethod? BootstrapMethod) {
-		BootstrapMethod = null;
-
+	public static bool Parse(Stream Stream, IList<BootstrapMethod> List) {
 		if (!Stream.ReadUShort(out ushort MethodHandleIndex) || !Stream.ReadUShort(out ushort ArgumentIndexCount))
 			return false;
 
@@ -36,7 +36,7 @@ public class BootstrapMethod : ISizeable {
 			}
 		}
 
-		BootstrapMethod = new(MethodHandleIndex, ArgumentIndexes);
+		List.Add(new(MethodHandleIndex, ArgumentIndexes));
 		return true;
 	}
 

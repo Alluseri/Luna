@@ -1,8 +1,9 @@
-using Alluseri.Luna.Abstract.Bytecode;
+using Alluseri.Luna.Bytecode;
 using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Numerics;
+using System.Text.Json.Nodes;
 
 namespace Alluseri.Luna.Utils;
 

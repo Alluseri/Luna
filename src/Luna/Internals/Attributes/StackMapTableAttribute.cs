@@ -7,18 +7,14 @@ using System.Linq;
 namespace Alluseri.Luna.Internals;
 
 public class StackMapTableAttribute : AttributeInfo {
-	public readonly LinkableList<StackMapFrame> Frames;
+	public IList<StackMapFrame> Frames;
 
-	public StackMapTableAttribute(IEnumerable<StackMapFrame> Frames) : base("StackMapTable", 2 + GU.GetSize(Frames)) {
-		this.Frames = new();
-		this.Frames.AddAll(Frames);
-		this.Frames.Lock();
-	}
+	public override int Size => 2 + GU.GetSize(Frames);
 
-	public StackMapTableAttribute(LinkableList<StackMapFrame> Frames) : base("StackMapTable", 2 + GU.GetSize(Frames)) {
-		Frames.Lock();
+	public StackMapTableAttribute(IList<StackMapFrame> Frames) : base("StackMapTable") {
 		this.Frames = Frames;
 	}
+	public StackMapTableAttribute(StackMapFrame[] Frames) : this(GU.AsList(Frames)) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, Frames);
 	public override bool Equals(object? Object) => Object is StackMapTableAttribute Attr && Attr.Frames.SequenceEqual(Frames);
@@ -31,11 +27,13 @@ public class StackMapTableAttribute : AttributeInfo {
 		if (!Substream.ReadUShort(out ushort FrameCount))
 			return new MalformedAttribute("StackMapTable", Store);
 
-		LinkableList<StackMapFrame> Frames = new(FrameCount);
+		List<StackMapFrame> Frames = new(FrameCount);
 
 		for (ushort i = 0; i < FrameCount; i++) {
-			if (StackMapFrame.Parse(Substream, Frames) == null) // Will automatically assign itself to the root Frames
+			StackMapFrame? Frame = StackMapFrame.Parse(Substream);
+			if (Frame == null)
 				return new MalformedAttribute("StackMapTable", Store);
+			Frames.Add(Frame);
 		}
 
 		return new StackMapTableAttribute(Frames);

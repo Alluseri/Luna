@@ -11,7 +11,7 @@ public static class GU {
 	public static string ToString(IEnumerable<object?> Enumerable) => string.Join(", ", Enumerable);
 	public static int GetSize(ISizeable[] Array) => Array.Sum(Entry => Entry.Size);
 	public static int GetSize(IEnumerable<ISizeable> Enumerable) => Enumerable.Sum(Entry => Entry.Size);
-	public static List<T> VarArgsList<T>(params T[] Args) => new(Args);
+	public static List<T> AsList<T>(params T[] Args) => new(Args);
 	public static T[] VarArgs<T>(params T[] Args) => Args;
 	public static T[] Append<T>(this T[] Self, T[] Array) {
 		T[] Output = new T[Self.Length + Array.Length];

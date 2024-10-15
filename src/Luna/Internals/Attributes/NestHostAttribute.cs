@@ -5,9 +5,11 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class NestHostAttribute : AttributeInfo {
-	public readonly ushort HostClassIndex;
+	public ushort HostClassIndex;
 
-	public NestHostAttribute(ushort HostClassIndex) : base("NestHost", 2) {
+	public override int Size => 2;
+
+	public NestHostAttribute(ushort HostClassIndex) : base("NestHost") {
 		this.HostClassIndex = HostClassIndex;
 	}
 

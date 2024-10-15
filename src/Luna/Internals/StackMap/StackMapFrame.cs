@@ -5,39 +5,31 @@ using System.Runtime.CompilerServices;
 
 namespace Alluseri.Luna.Internals;
 
-// TODO: Unlink, since SMT doesn't work like I thought it does. E.g. ChopFrame will reference the previous frame in the stack, not in the table.
-public abstract class StackMapFrame : Linkable<StackMapFrame>, ISizeable {
-	public readonly ushort OffsetDelta;
+public abstract class StackMapFrame : ISizeable {
+	public readonly ushort OffsetDelta; // DESIGN: I think it is unsafe to unreadonly this. Use Replace() instead.
 
-	public StackMapFrame(ushort OffsetDelta, LinkableList<StackMapFrame>? Root = null) : base(Root) {
+	public StackMapFrame(ushort OffsetDelta) {
 		this.OffsetDelta = OffsetDelta;
 	}
 
 	public abstract int Size { get; }
 
-	public abstract (VerificationType[] Locals, VerificationType[] Stack) Emulate(); // DESIGN: Turn this to a record?
-
-	public FullFrame AsFull() {
-		(VerificationType[] Locals, VerificationType[] Stack) = Emulate();
-		return new(OffsetDelta, Locals, Stack);
-	}
-
 	public abstract override int GetHashCode();
 	public abstract override bool Equals(object? obj);
 	public abstract override string ToString();
 
-	public static StackMapFrame? Parse(Stream Stream, LinkableList<StackMapFrame>? Root = null) {
+	public static StackMapFrame? Parse(Stream Stream) {
 		byte Tag = (byte) Stream.ReadByte();
 		if (Tag <= 63 || Tag == 251)
-			return SameStackFrame.Parse(Stream, Tag, Root);
+			return SameStackFrame.Parse(Stream, Tag);
 		else if ((Tag >= 64 && Tag <= 127) || Tag == 247)
-			return SameLocalsOneStackItemFrame.Parse(Stream, Tag, Root);
+			return SameLocalsOneStackItemFrame.Parse(Stream, Tag);
 		else if (Tag >= 248 && Tag <= 250)
-			return ChopFrame.Parse(Stream, Tag, Root);
+			return ChopFrame.Parse(Stream, Tag);
 		else if (Tag >= 252 && Tag <= 254)
-			return AppendFrame.Parse(Stream, Tag, Root);
+			return AppendFrame.Parse(Stream, Tag);
 		else if (Tag == 255)
-			return FullFrame.Parse(Stream, Tag, Root);
+			return FullFrame.Parse(Stream, Tag);
 		else
 			return null;
 	}

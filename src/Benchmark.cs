@@ -1,4 +1,4 @@
-using Alluseri.Luna.Abstract;
+using Alluseri.Luna;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using System;

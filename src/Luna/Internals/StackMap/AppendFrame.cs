@@ -11,15 +11,15 @@ namespace Alluseri.Luna.Internals;
 public class AppendFrame : StackMapFrame {
 	public readonly VerificationType[] Locals;
 
-	public AppendFrame(ushort OffsetDelta, VerificationType[] Locals, LinkableList<StackMapFrame>? Root = null) : base(OffsetDelta, Root) {
+	public AppendFrame(ushort OffsetDelta, VerificationType[] Locals) : base(OffsetDelta) {
 		this.Locals = Locals;
 	}
 
-	public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
+	/*public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
 	=> (
 		(Previous ?? throw new EmulationException("Cannot emulate an AppendFrame due to there being no previous frame.")).Emulate().Locals.Append(Locals),
 		Array.Empty<VerificationType>()
-	);
+	);*/
 
 	public override int Size => 3 + GU.GetSize(Locals);
 
@@ -27,7 +27,7 @@ public class AppendFrame : StackMapFrame {
 	public override bool Equals(object? Object) => Object is AppendFrame AF && AF.OffsetDelta == OffsetDelta && AF.Locals.SequenceEqual(Locals);
 	public override string ToString() => $"{{ AppendFrame +{((uint) OffsetDelta) + 1}: Locals +[ {GU.ToString(Locals)} ], Stack [] }}";
 
-	public static AppendFrame? Parse(Stream Stream, byte Tag, LinkableList<StackMapFrame>? Root = null) {
+	public static AppendFrame? Parse(Stream Stream, byte Tag) {
 		if (!Stream.ReadUShort(out ushort OffsetDelta))
 			return null;
 		VerificationType[] Locals = new VerificationType[Tag - 251];
@@ -35,7 +35,7 @@ public class AppendFrame : StackMapFrame {
 			if ((Locals[i] = VerificationType.Parse(Stream)!) == null)
 				return null;
 		}
-		return new AppendFrame(OffsetDelta, Locals, Root);
+		return new AppendFrame(OffsetDelta, Locals);
 	}
 
 	public override void Write(Stream Stream) {

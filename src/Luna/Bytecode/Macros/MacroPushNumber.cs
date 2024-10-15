@@ -1,0 +1,1 @@
+// any size prim without constant pool

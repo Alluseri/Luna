@@ -9,17 +9,17 @@ public class SameLocalsOneStackItemFrame : StackMapFrame {
 	public readonly bool Extended = false;
 	public readonly VerificationType StackItem;
 
-	public SameLocalsOneStackItemFrame(ushort OffsetDelta, VerificationType StackItem, LinkableList<StackMapFrame>? Root = null) : base(OffsetDelta, Root) {
+	public SameLocalsOneStackItemFrame(ushort OffsetDelta, VerificationType StackItem) : base(OffsetDelta) {
 		Extended = OffsetDelta > 63;
 		this.StackItem = StackItem;
 	}
 
-	public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
+	/*public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
 	=>
 	(
 		(Previous ?? throw new EmulationException("Cannot emulate a SameLocalsOneStackItemFrame due to there being no previous frame.")).Emulate().Locals,
 		new[] { StackItem }
-	);
+	);*/
 
 	public override int Size => (Extended ? 3 : 1) + StackItem.Size;
 
@@ -29,15 +29,15 @@ public class SameLocalsOneStackItemFrame : StackMapFrame {
 
 	// DESIGN: Arghhh I can't get over the thought of onelining this with out parameters
 
-	public static SameLocalsOneStackItemFrame? Parse(Stream Stream, byte Tag, LinkableList<StackMapFrame>? Root = null) {
+	public static SameLocalsOneStackItemFrame? Parse(Stream Stream, byte Tag) {
 		if (Tag == 247) {
 			if (!Stream.ReadUShort(out ushort OffsetDelta))
 				return null;
 			VerificationType? Vt = VerificationType.Parse(Stream);
-			return Vt == null ? null : new SameLocalsOneStackItemFrame(OffsetDelta, Vt, Root);
+			return Vt == null ? null : new SameLocalsOneStackItemFrame(OffsetDelta, Vt);
 		} else {
 			VerificationType? Vt = VerificationType.Parse(Stream);
-			return Vt == null ? null : new SameLocalsOneStackItemFrame((ushort) (Tag - 64), Vt, Root);
+			return Vt == null ? null : new SameLocalsOneStackItemFrame((ushort) (Tag - 64), Vt);
 		}
 	}
 

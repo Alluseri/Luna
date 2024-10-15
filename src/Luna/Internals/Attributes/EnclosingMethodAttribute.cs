@@ -5,11 +5,12 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class EnclosingMethodAttribute : AttributeInfo {
-	public readonly ushort ClassIndex;
-	public readonly ushort MethodIndex;
+	public ushort ClassIndex;
+	public ushort MethodIndex;
 
-	public EnclosingMethodAttribute(ushort ClassIndex, ushort MethodIndex)
-		: base("EnclosingMethod", 4) {
+	public override int Size => 4;
+
+	public EnclosingMethodAttribute(ushort ClassIndex, ushort MethodIndex) : base("EnclosingMethod") {
 		this.ClassIndex = ClassIndex;
 		this.MethodIndex = MethodIndex;
 	}

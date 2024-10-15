@@ -1,17 +1,20 @@
 using Alluseri.Luna.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
 public class ExceptionsAttribute : AttributeInfo {
-	public readonly ushort[] ExceptionIndexes;
+	public IList<ushort> ExceptionIndexes;
 
-	public ExceptionsAttribute(ushort[] ExceptionIndexes)
-		: base("Exceptions", 2 + (2 * ExceptionIndexes.Length)) {
+	public override int Size => 2 + (2 * ExceptionIndexes.Count);
+
+	public ExceptionsAttribute(IList<ushort> ExceptionIndexes) : base("Exceptions") {
 		this.ExceptionIndexes = ExceptionIndexes;
 	}
+	public ExceptionsAttribute(ushort[] ExceptionIndexes) : this(GU.AsList(ExceptionIndexes)) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, ExceptionIndexes);
 	public override bool Equals(object? Object) => Object is ExceptionsAttribute Attr && Attr.ExceptionIndexes.SequenceEqual(ExceptionIndexes);
@@ -24,17 +27,18 @@ public class ExceptionsAttribute : AttributeInfo {
 		if (!Substream.ReadUShort(out ushort NumberOfExceptions))
 			return new MalformedAttribute("Exceptions", Store);
 
-		ushort[] ExceptionIndexes = new ushort[NumberOfExceptions];
-		for (ushort i = 0; i < ExceptionIndexes.Length; i++) {
-			if (!Substream.ReadUShort(out ExceptionIndexes[i]))
+		List<ushort> ExceptionIndexes = new(NumberOfExceptions);
+		for (ushort i = 0; i < NumberOfExceptions; i++) {
+			if (!Substream.ReadUShort(out ushort Index))
 				return new MalformedAttribute("Exceptions", Store);
+			ExceptionIndexes.Add(Index);
 		}
 
 		return new ExceptionsAttribute(ExceptionIndexes);
 	}
 
 	protected override void Write(Stream Stream) {
-		Stream.Write((ushort) ExceptionIndexes.Length);
+		Stream.Write((ushort) ExceptionIndexes.Count);
 		foreach (ushort Ex in ExceptionIndexes)
 			Stream.Write(Ex);
 	}

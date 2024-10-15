@@ -1,16 +1,20 @@
 using Alluseri.Luna.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
 public class InnerClassesAttribute : AttributeInfo {
-	public readonly InnerClass[] InnerClasses;
+	public IList<InnerClass> InnerClasses;
 
-	public InnerClassesAttribute(InnerClass[] Classes) : base("InnerClasses", 2 + (8 * Classes.Length)) {
-		InnerClasses = Classes;
+	public override int Size => 2 + (8 * InnerClasses.Count);
+
+	public InnerClassesAttribute(IList<InnerClass> InnerClasses) : base("InnerClasses") {
+		this.InnerClasses = InnerClasses;
 	}
+	public InnerClassesAttribute(InnerClass[] Classes) : this(GU.AsList(Classes)) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, InnerClasses);
 	public override bool Equals(object? Object) => Object is InnerClassesAttribute Attr && Attr.InnerClasses.SequenceEqual(InnerClasses);
@@ -23,7 +27,7 @@ public class InnerClassesAttribute : AttributeInfo {
 		if (!Substream.ReadUShort(out ushort Icl))
 			return new MalformedAttribute("InnerClasses", Store);
 
-		InnerClass[] Ic = new InnerClass[Icl];
+		List<InnerClass> InnerClasses = new(Icl);
 
 		for (ushort i = 0; i < Icl; i++) {
 			if (
@@ -33,14 +37,14 @@ public class InnerClassesAttribute : AttributeInfo {
 				!Substream.ReadUShort(out ushort AccessFlags)
 			)
 				return new MalformedAttribute("InnerClasses", Store);
-			Ic[i] = new(InfoIndex, OuterInfoIndex, NameIndex, AccessFlags);
+			InnerClasses.Add(new(InfoIndex, OuterInfoIndex, NameIndex, AccessFlags));
 		}
 
-		return new InnerClassesAttribute(Ic);
+		return new InnerClassesAttribute(InnerClasses);
 	}
 
 	protected override void Write(Stream Stream) {
-		Stream.Write((ushort) InnerClasses.Length);
+		Stream.Write((ushort) InnerClasses.Count);
 		foreach (InnerClass Ic in InnerClasses) {
 			Ic.Write(Stream);
 		}

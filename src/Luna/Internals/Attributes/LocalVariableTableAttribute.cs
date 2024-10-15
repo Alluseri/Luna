@@ -1,17 +1,20 @@
 using Alluseri.Luna.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
 public class LocalVariableTableAttribute : AttributeInfo {
-	public readonly LocalVariableEntry[] LocalVariables;
+	public IList<LocalVariableEntry> LocalVariables;
 
-	public LocalVariableTableAttribute(LocalVariableEntry[] LocalVariables)
-		: base("LocalVariableTable", 2 + (LocalVariables.Length * 10)) {
+	public override int Size => 2 + (LocalVariables.Count * 10);
+
+	public LocalVariableTableAttribute(IList<LocalVariableEntry> LocalVariables) : base("LocalVariableTable") {
 		this.LocalVariables = LocalVariables;
 	}
+	public LocalVariableTableAttribute(LocalVariableEntry[] LocalVariables) : this(GU.AsList(LocalVariables)) { }
 
 	public override int GetHashCode() => HashCode.Combine(Name, LocalVariables);
 	public override bool Equals(object? Object) => Object is LocalVariableTableAttribute Attr && Attr.LocalVariables.SequenceEqual(LocalVariables);
@@ -24,8 +27,8 @@ public class LocalVariableTableAttribute : AttributeInfo {
 		if (!Substream.ReadUShort(out ushort LocalVariableTableLength))
 			return new MalformedAttribute("LocalVariableTable", Store);
 
-		LocalVariableEntry[] LocalVariables = new LocalVariableEntry[LocalVariableTableLength];
-		for (ushort i = 0; i < LocalVariables.Length; i++) {
+		List<LocalVariableEntry> LocalVariables = new(LocalVariableTableLength);
+		for (ushort i = 0; i < LocalVariableTableLength; i++) {
 			if (
 				!Substream.ReadUShort(out ushort StartPc) ||
 				!Substream.ReadUShort(out ushort Length) ||
@@ -35,14 +38,14 @@ public class LocalVariableTableAttribute : AttributeInfo {
 			)
 				return new MalformedAttribute("LocalVariableTable", Store);
 
-			LocalVariables[i] = new LocalVariableEntry(StartPc, Length, NameIndex, DescriptorIndex, Index);
+			LocalVariables.Add(new LocalVariableEntry(StartPc, Length, NameIndex, DescriptorIndex, Index));
 		}
 
 		return new LocalVariableTableAttribute(LocalVariables);
 	}
 
 	protected override void Write(Stream Stream) {
-		Stream.Write((ushort) LocalVariables.Length);
+		Stream.Write((ushort) LocalVariables.Count);
 		foreach (LocalVariableEntry Lv in LocalVariables)
 			Lv.Write(Stream);
 	}

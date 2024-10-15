@@ -5,7 +5,9 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class DeprecatedAttribute : AttributeInfo {
-	public DeprecatedAttribute() : base("Deprecated", 0) { }
+	public override int Size => 0;
+
+	public DeprecatedAttribute() : base("Deprecated") { }
 
 	public override int GetHashCode() => HashCode.Combine(Name);
 	public override bool Equals(object? Object) => Object is DeprecatedAttribute Attr;

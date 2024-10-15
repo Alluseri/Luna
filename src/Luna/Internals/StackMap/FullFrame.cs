@@ -9,13 +9,13 @@ public class FullFrame : StackMapFrame {
 	public readonly VerificationType[] Locals;
 	public readonly VerificationType[] Stack;
 
-	public FullFrame(ushort OffsetDelta, VerificationType[] Locals, VerificationType[] Stack, LinkableList<StackMapFrame>? Root = null) : base(OffsetDelta, Root) {
+	public FullFrame(ushort OffsetDelta, VerificationType[] Locals, VerificationType[] Stack) : base(OffsetDelta) {
 		this.Locals = Locals;
 		this.Stack = Stack;
 	}
 
-	public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
-	=> (Locals, Stack);
+	/*public override (VerificationType[] Locals, VerificationType[] Stack) Emulate()
+	=> (Locals, Stack);*/
 
 	public override int Size => 7 + GU.GetSize(Locals) + GU.GetSize(Stack);
 
@@ -23,7 +23,7 @@ public class FullFrame : StackMapFrame {
 	public override bool Equals(object? Object) => Object is FullFrame FF && FF.OffsetDelta == OffsetDelta && FF.Stack.SequenceEqual(Stack) && FF.Locals.SequenceEqual(Locals);
 	public override string ToString() => $"{{ FullFrame +{((uint) OffsetDelta) + 1}: Locals [ {GU.ToString(Locals)} ], Stack [ {GU.ToString(Stack)} ] }}";
 
-	public static FullFrame? Parse(Stream Stream, byte Tag, LinkableList<StackMapFrame>? Root = null) { // DESIGN: Keep the unused Tag or override VerificationType with new? Alternative idea: ParseFrame
+	public static FullFrame? Parse(Stream Stream, byte Tag) { // DESIGN: Keep the unused Tag or override VerificationType with new? Alternative idea: ParseFrame
 		if (!Stream.ReadUShort(out ushort OffsetDelta) || !Stream.ReadUShort(out ushort NumberOfLocals))
 			return null;
 
@@ -42,7 +42,7 @@ public class FullFrame : StackMapFrame {
 				return null;
 		}
 
-		return new FullFrame(OffsetDelta, Locals, Stack, Root);
+		return new FullFrame(OffsetDelta, Locals, Stack);
 	}
 
 	public override void Write(Stream Stream) {

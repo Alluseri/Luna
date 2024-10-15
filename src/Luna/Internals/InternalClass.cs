@@ -1,12 +1,15 @@
 using Alluseri.Luna.Exceptions;
 using Alluseri.Luna.Utils;
+using System;
 using System.IO;
+using System.IO.Compression;
+using System.IO.Hashing;
 using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
 /*
-	DESIGN IMPLICATIONS
+	DESIGN IMPLICATIONS [LEGACY]
 	This mostly has the basis of being as writable as it can be without changing the internal state of the object, as in:
 	- You can add new entries to the ConstantPool, but it does not affect the internal references to the pool from other elements of the class file.
 	- Likewise with Version: as we don't check for backwards-compatibility(or anything for that matter) in a class that belongs to Luna.Internals,
@@ -19,15 +22,15 @@ namespace Alluseri.Luna.Internals;
 */
 
 public class InternalClass {
-	public readonly (ushort Minor, ushort Major) Version;
-	public readonly ConstantPool ConstantPool;
-	public readonly ClassAccessFlags AccessFlags;
-	public readonly ushort ThisClass;
-	public readonly ushort SuperClass;
-	public readonly ushort[] Interfaces;
-	public readonly FieldInfo[] Fields;
-	public readonly MethodInfo[] Methods;
-	public readonly AttributeInfo[] Attributes;
+	public /*readonly*/ (ushort Minor, ushort Major) Version;
+	public /*readonly*/ ConstantPool ConstantPool;
+	public /*readonly*/ ClassAccessFlags AccessFlags;
+	public /*readonly*/ ushort ThisClass;
+	public /*readonly*/ ushort SuperClass;
+	public /*readonly*/ ushort[] Interfaces;
+	public /*readonly*/ FieldInfo[] Fields;
+	public /*readonly*/ MethodInfo[] Methods;
+	public /*readonly*/ AttributeInfo[] Attributes;
 
 	public ushort JavaVersion => (ushort) (Version.Major - 44);
 
@@ -65,8 +68,9 @@ public class InternalClass {
 			Methods[i] = new MethodInfo(Stream, ConstantPool);
 
 		GU.New(out Attributes, Stream.ReadUShort());
-		for (ushort i = 0; i < Attributes.Length; i++)
+		for (ushort i = 0; i < Attributes.Length; i++) {
 			Attributes[i] = AttributeInfo.Parse(Stream, ConstantPool) ?? throw new ClassFileException($"Cannot parse an incomplete or otherwise malformed class file: ran out of bytes while reading the cpool index of attribute #{i} (owned by a ClassFile).");
+		}
 	}
 
 	public InternalClass(
@@ -90,6 +94,18 @@ public class InternalClass {
 		this.Methods = Methods;
 		this.Attributes = Attributes;
 	}
+
+	public InternalClass(
+		ushort JavaVersion,
+		ConstantPool ConstantPool,
+		ClassAccessFlags AccessFlags,
+		ushort ThisClass,
+		ushort SuperClass,
+		ushort[] Interfaces,
+		FieldInfo[] Fields,
+		MethodInfo[] Methods,
+		AttributeInfo[] Attributes
+	) : this((0, (ushort) (JavaVersion + 44)), ConstantPool, AccessFlags, ThisClass, SuperClass, Interfaces, Fields, Methods, Attributes) { }
 
 	public void Checkout() {
 		foreach (FieldInfo Field in Fields)

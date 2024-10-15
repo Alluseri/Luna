@@ -4,21 +4,15 @@ using System.IO;
 
 namespace Alluseri.Luna.Internals;
 
-// TODO: Pedantic mode for attributes like NestHost
-// TODO: Hyper-pedantic mode for every attribute that has garbage data in tail
+// TODO: Internal state checking for attributes like BootstrapMethods which have limited-size(ushort) lists
 
 public abstract class AttributeInfo : ISizeable {
 	public readonly string Name;
-	public readonly uint Size;
-	int ISizeable.Size => (int) Size; // DESIGN: What do I do with this bullshit cast? :/
+	public abstract int Size { get; } // This is regular attribute size, used for basically everything
+	int ISizeable.Size => Size + 6; // This is on-disk size, only available for explicit ISizeable users, this is needed for Code, Record and other AttributeInfo writers to work properly
 
-	public AttributeInfo(string Name, int Size) {
+	public AttributeInfo(string Name) {
 		this.Name = Name;
-		this.Size = (uint) Size + 6;
-	}
-	public AttributeInfo(string Name, uint Size) {
-		this.Name = Name;
-		this.Size = Size + 6;
 	}
 
 	public abstract override int GetHashCode();
@@ -63,7 +57,7 @@ public abstract class AttributeInfo : ISizeable {
 	public virtual void Write(Stream Stream, ConstantPool Pool) {
 		// DEBUGTRACE: Console.WriteLine($"Started writing {Name} at {Stream.Position:X}"); // DEBUGTRACE
 		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
-		Stream.Write(Size - 6);
+		Stream.Write(Size);
 		Write(Stream);
 		// DEBUGTRACE: Console.WriteLine($"Finished writing {Name} at {Stream.Position:X}"); // DEBUGTRACE
 	}
