@@ -5,10 +5,11 @@ namespace Alluseri.Luna;
 
 public class MethodReference : ClassMemberReference<MethodDescriptor> {
 	public MethodReference(string ClassName, MethodDescriptor Descriptor) : base(ClassName, Descriptor) { }
+	public MethodReference(ReferenceTypeDescriptor ClassDescriptor, MethodDescriptor Descriptor) : base(ClassDescriptor, Descriptor) { }
 
 	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(
 		new ConstantMethodRef(
-			Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(ClassName))),
+			ClassDescriptor.CheckoutSymbolic(Pool),
 			Descriptor.Checkout(Pool)
 		)
 	);

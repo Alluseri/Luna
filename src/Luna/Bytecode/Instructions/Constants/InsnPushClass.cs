@@ -1,24 +1,30 @@
 using Alluseri.Luna.Internals;
-using Alluseri.Luna.Utils;
 using System.IO;
 
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnPushClass : Instruction {
-	public string ClassName;
+	public ReferenceTypeDescriptor Descriptor;
+	public string ClassName {
+		get => Descriptor.SymbolicTerm;
+		set => Descriptor = ReferenceTypeDescriptor.ParseSymbolic(value);
+	}
 	private ushort PoolIndex;
 
-	public InsnPushClass(string ClassName) {
-		this.ClassName = ClassName;
+	public InsnPushClass(string Descriptor) {
+		this.Descriptor = ReferenceTypeDescriptor.ParseSymbolic(Descriptor);
+	}
+	public InsnPushClass(ReferenceTypeDescriptor Descriptor) {
+		this.Descriptor = Descriptor;
 	}
 
 	internal override void Checkout(ConstantPool Pool) {
-		Size = GetLdcSize(PoolIndex = Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(ClassName))));
+		Size = GetLdcSize(PoolIndex = Descriptor.CheckoutSymbolic(Pool));
 	}
 
 	internal override void Write(Stream Stream, CodeBuilder Builder) {
 		Ldc(Stream, PoolIndex);
 	}
 
-	public override string ToString() => $"push.a {ClassName}.class";
+	public override string ToString() => $"push.class {ClassName}";
 }

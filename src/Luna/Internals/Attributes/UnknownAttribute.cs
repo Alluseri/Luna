@@ -19,7 +19,7 @@ public class UnknownAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is UnknownAttribute Attr && Attr.Name == Name && Attr.Data.SequenceEqual(Data);
 	public override string ToString() => Data.Length > TruncateBytes ? $"{{ Luna:Unknown {Name} [ {Convert.ToHexString(Data[..TruncateBytes])}... ({Data.Length} bytes total) ] }}" : $"{{ Luna:Unknown {Name} [ {Convert.ToHexString(Data)} ({Data.Length} bytes total) ] }}";
 
-	public static AttributeInfo Parse(Stream Stream, string Name) => new UnknownAttribute(Name, Stream.ReadSegment(Stream.ReadUInt()));
+	public static AttributeInfo? Parse(Stream Stream, string Name) => Stream.ReadSafe(Stream.ReadUInt(), out byte[] Data) ? new UnknownAttribute(Name, Data) : null;
 
 	protected override void Write(Stream Stream) => Stream.Write(Data);
 }

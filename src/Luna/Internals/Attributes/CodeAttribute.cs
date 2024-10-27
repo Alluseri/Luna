@@ -30,8 +30,9 @@ public class CodeAttribute : AttributeInfo {
 	public override string ToString() => $"{{ Code Stack[{MaxStackDepth}], Locals[{MaxLocals}], Bytecode[{Bytecode.Length}], Exceptions [ {GU.ToString(ExceptionTable)} ], Attributes [ {GU.ToString(Attributes)} ] }}";
 
 	public static AttributeInfo ParseCode(Stream Stream, ConstantPool Pool) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return new MalformedAttribute("Code", Store);
 
 		if (
 			!Substream.ReadUShort(out ushort MaxStack) ||
@@ -76,7 +77,7 @@ public class CodeAttribute : AttributeInfo {
 			Ai.Checkout(Pool);
 	}
 
-	protected override void Write(Stream Stream) => throw new NotSupportedException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
+	protected override void Write(Stream Stream) => throw new InvalidOperationException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {
 		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
 		Stream.Write(Size);

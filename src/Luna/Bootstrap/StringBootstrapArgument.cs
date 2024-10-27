@@ -11,5 +11,7 @@ public class StringBootstrapArgument : BootstrapArgument {
 		this.Value = Value;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantString(Pool.CheckoutUtf8(Value)));
+	protected override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantString(Pool.CheckoutUtf8(Value)));
+
+	public override string ToString() => $"{{ BArg::String \"{Value}\" }}"; // TODO: Escape (make a utility method god damn it)
 }

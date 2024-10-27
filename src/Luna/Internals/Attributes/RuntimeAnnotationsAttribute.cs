@@ -23,9 +23,10 @@ public class RuntimeAnnotationsAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is RuntimeAnnotationsAttribute Attr && Attr.Visible == Visible && Attr.Annotations.SequenceEqual(Annotations);
 	public override string ToString() => $"{{ {Name} [ {GU.ToString(Annotations)} ] }}";
 
-	public static AttributeInfo ParseRA(Stream Stream, bool Visible) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? ParseRA(Stream Stream, bool Visible) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort AnnotationCount))
 			return new MalformedAttribute(GetName(Visible), Store);

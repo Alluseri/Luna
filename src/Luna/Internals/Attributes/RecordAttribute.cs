@@ -21,9 +21,10 @@ public class RecordAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is RecordAttribute Attr && Attr.Components.SequenceEqual(Components);
 	public override string ToString() => $"{{ Record [ {GU.ToString(Components)} ] }}";
 
-	public static AttributeInfo ParseRecord(Stream Stream, ConstantPool Pool) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? ParseRecord(Stream Stream, ConstantPool Pool) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort ComponentsCount))
 			return new MalformedAttribute("Record", Store);
@@ -58,7 +59,7 @@ public class RecordAttribute : AttributeInfo {
 				Ai.Checkout(Pool);
 	}
 
-	protected override void Write(Stream Stream) => throw new NotSupportedException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
+	protected override void Write(Stream Stream) => throw new InvalidOperationException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {
 		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
 		Stream.Write(Size);

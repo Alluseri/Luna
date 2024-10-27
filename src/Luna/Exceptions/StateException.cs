@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Alluseri.Luna.Exceptions;
+namespace Alluseri.Luna;
 
 [Serializable]
 public class StateException : Exception {

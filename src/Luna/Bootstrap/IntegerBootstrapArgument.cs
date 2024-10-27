@@ -9,5 +9,7 @@ public class IntegerBootstrapArgument : BootstrapArgument {
 		this.Value = Value;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantInteger(Value));
+	protected override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantInteger(Value));
+
+	public override string ToString() => $"{{ BArg::Integer {Value} }}";
 }

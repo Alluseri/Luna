@@ -3,8 +3,14 @@ using System.Runtime;
 
 namespace Alluseri.Luna;
 
-public class ArrayTypeDescriptor : TypeDescriptor {
-	public ArrayTypeDescriptor(TypeDescriptor Type, byte Depth) : base($"{new string('[', Depth)}{Type}") { } // Wow... this hurts me
+public class ArrayTypeDescriptor : ReferenceTypeDescriptor {
+	public readonly TypeDescriptor ArrayType;
+	public readonly byte Dimensions;
+
+	public ArrayTypeDescriptor(TypeDescriptor ArrayType, byte Dimensions) : base($"{new string('[', Dimensions)}{ArrayType}") {
+		this.ArrayType = ArrayType;
+		this.Dimensions = Dimensions;
+	}
 
 	internal static new ArrayTypeDescriptor? Parse(ReadOnlySpan<char> Value, ref int Offset) {
 		if (Value[0] != '[')

@@ -1,4 +1,4 @@
-using Alluseri.Luna.Exceptions;
+using Alluseri.Luna;
 using Alluseri.Luna.Utils;
 using System;
 using System.IO;
@@ -148,6 +148,8 @@ public class InternalClass {
 		OutputStream.Write((ushort) Attributes.Length);
 		foreach (AttributeInfo Attr in Attributes)
 			Attr.Write(OutputStream, ConstantPool);
+
+		OutputStream.Flush();
 	}
 
 	public ConstantClass GetThisClass() => (ConstantClass) ConstantPool[ThisClass];

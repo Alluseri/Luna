@@ -19,12 +19,13 @@ Everything else is fatal during resolution
 */
 
 public abstract class BootstrapArgument {
-	public abstract ushort Checkout(ConstantPool Pool);
+	protected abstract ushort Checkout(ConstantPool Pool);
+	public virtual ushort Checkout(ConstantPool Pool, BootstrapMethodsAttribute BootstrapMethods) => Checkout(Pool);
 
 	public static BootstrapArgument FromConstant(InternalClass Class, ConstantInfo Info) => Info switch {
 		ConstantClass CClass => new ClassBootstrapArgument(CClass.GetName(Class.ConstantPool)),
 		ConstantDynamic CDyn => new DynamicBootstrapArgument(
-			BootstrapMethod.FromInternal(Class, CDyn.GetBootstrapMethod(Class) ?? throw new InvalidDataException($"Recovery from a malformed ConDy is not yet implemented.")),
+			BootstrapMethod.FromInternal(Class, CDyn.GetBootstrapMethod(Class) ?? throw new InvalidDataException($"Recovery from a malformed ConDyn is not yet implemented.")),
 			FieldDescriptor.FromSignature(Class.ConstantPool, CDyn.GetNameAndType(Class.ConstantPool))),
 		ConstantString CString => new StringBootstrapArgument(CString.GetString(Class.ConstantPool)),
 		ConstantMethodHandle CMeh => new MethodHandleBootstrapArgument(new(CMeh.Kind, ClassMemberReference.FromConstant(Class.ConstantPool, CMeh.GetInfo(Class.ConstantPool)))),
@@ -36,5 +37,5 @@ public abstract class BootstrapArgument {
 		_ => throw new InvalidDataException($"Cannot represent {Info} as a managed bootstrap argument.")
 	};
 
-	public override string ToString() => $"{}";
+	public abstract override string ToString(); // DESIGN: Is BArg:: necessary or nah?
 }

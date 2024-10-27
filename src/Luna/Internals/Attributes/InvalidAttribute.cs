@@ -21,11 +21,7 @@ public class InvalidAttribute : AttributeInfo { // Specification: All bytes will
 	public override bool Equals(object? Object) => Object is InvalidAttribute Attr && Attr.PoolIndex == PoolIndex && Attr.Data.SequenceEqual(Data);
 	public override string ToString() => Data.Length > TruncateBytes ? $"{{ Luna:Invalid ({PoolIndex}) [ {Convert.ToHexString(Data[..TruncateBytes])}... ({Data.Length} bytes total) ] }}" : $"{{ Luna:Invalid ({PoolIndex}) [ {Convert.ToHexString(Data)} ({Data.Length} bytes total) ] }}";
 
-	public static AttributeInfo Parse(Stream Stream, ushort PoolIndex) {
-		byte[] T = new byte[Stream.ReadUInt()];
-		Stream.Read(T);
-		return new InvalidAttribute(PoolIndex, T);
-	}
+	public static AttributeInfo? Parse(Stream Stream, ushort PoolIndex) => Stream.ReadSafe(Stream.ReadUInt(), out byte[] Data) ? new InvalidAttribute(PoolIndex, Data) : null;
 
 	protected override void Write(Stream Stream) => throw new NotSupportedException($"InvalidAttribute has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {

@@ -19,9 +19,10 @@ public class SignatureAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is SignatureAttribute Attr && Attr.PoolIndex == PoolIndex;
 	public override string ToString() => $"{{ Signature #{PoolIndex} }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		return Substream.ReadUShort(out ushort Index) ? new SignatureAttribute(Index) : new MalformedAttribute("Signature", Store);
 	}

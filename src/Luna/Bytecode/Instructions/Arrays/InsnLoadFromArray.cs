@@ -1,10 +1,22 @@
+using Alluseri.Luna.Utils;
+using System;
+using System.IO;
+
 namespace Alluseri.Luna.Bytecode;
 
-public class InsnLoadByteFromArray() : ZeroOpInstruction(Opcode.BALoad, "loadfromarray.bz") { }
-public class InsnLoadCharFromArray() : ZeroOpInstruction(Opcode.CALoad, "loadfromarray.c") { }
-public class InsnLoadDoubleFromArray() : ZeroOpInstruction(Opcode.DALoad, "loadfromarray.d") { }
-public class InsnLoadFloatFromArray() : ZeroOpInstruction(Opcode.FALoad, "loadfromarray.f") { }
-public class InsnLoadIntegerFromArray() : ZeroOpInstruction(Opcode.IALoad, "loadfromarray.i") { }
-public class InsnLoadLongFromArray() : ZeroOpInstruction(Opcode.LALoad, "loadfromarray.l") { }
-public class InsnLoadRefFromArray() : ZeroOpInstruction(Opcode.AALoad, "loadfromarray.a") { }
-public class InsnLoadShortFromArray() : ZeroOpInstruction(Opcode.SALoad, "loadfromarray.s") { }
+public class InsnLoadFromArray : Instruction {
+	ArrayType ArrayType;
+
+	public InsnLoadFromArray(ArrayType ArrayType) : base(1) {
+		if (ArrayType > ArrayType.Short)
+			throw new ArgumentOutOfRangeException(nameof(ArrayType), "Illegal array type for this operation.");
+
+		this.ArrayType = ArrayType;
+	}
+
+	internal override void Write(Stream Stream, CodeBuilder Builder) {
+		Stream.Write(Opcode.IALoad, (uint) ArrayType);
+	}
+
+	public override string ToString() => $"loadfromarray.{ArrayType.GetInstructionSign()}";
+}

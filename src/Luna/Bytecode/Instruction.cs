@@ -29,6 +29,6 @@ public abstract class Instruction {
 
 	public abstract override string ToString();
 
-	internal virtual void Checkout(ConstantPool Pool) { }
+	internal virtual void Checkout(CodeBuilder Builder) { }
 	internal abstract void Write(Stream Stream, CodeBuilder Class);
 }

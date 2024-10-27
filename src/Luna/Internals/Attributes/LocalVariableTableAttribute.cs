@@ -20,9 +20,10 @@ public class LocalVariableTableAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is LocalVariableTableAttribute Attr && Attr.LocalVariables.SequenceEqual(LocalVariables);
 	public override string ToString() => $"{{ LocalVariableTable [ {GU.ToString(LocalVariables)} ] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort LocalVariableTableLength))
 			return new MalformedAttribute("LocalVariableTable", Store);

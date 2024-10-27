@@ -55,6 +55,6 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 }
 
 public class CodeBuilderConfig {
-	public bool ComplexGotoResolution = false;
-	public bool RepairLabelIdentities = false;
+	public bool ComplexGotoResolution = false; // performance hit: very
+	public bool RepairLabelIdentities = false; // performance hit: minor
 }

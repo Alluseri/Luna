@@ -1,25 +1,10 @@
-using Alluseri.Luna.Internals;
-using Alluseri.Luna.Utils;
-using System.IO;
-
 namespace Alluseri.Luna.Bytecode;
 
-public class InsnCheckCast : Instruction {
-	public string ClassName;
-	private ushort PoolIndex;
+public class InsnCheckCast : AbstractClassInstruction {
+	protected override Opcode Opcode => Opcode.CheckCast;
 
-	public InsnCheckCast(string ClassName) : base(3) {
-		this.ClassName = ClassName;
-	}
-
-	internal override void Checkout(ConstantPool Pool) {
-		PoolIndex = Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(ClassName)));
-	}
-
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
-		Stream.Write(Opcode.CheckCast);
-		Stream.Write(PoolIndex);
-	}
+	public InsnCheckCast(string ClassName) : base(ClassName) { }
+	public InsnCheckCast(ReferenceTypeDescriptor ClassDescriptor) : base(ClassDescriptor) { }
 
 	public override string ToString() => $"checkcast {ClassName}";
 }

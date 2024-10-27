@@ -6,7 +6,6 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnStoreLong : AbstractLocalsInstruction {
-	public InsnStoreLong(short Slot) : this((ushort) Slot) { }
 	public InsnStoreLong(ushort Slot) : base(Slot) { }
 
 	protected override Opcode SmallOpcode => Opcode.LStore_0;

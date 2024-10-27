@@ -32,9 +32,10 @@ public class BootstrapMethodsAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is BootstrapMethodsAttribute Attr && Attr.Content.SequenceEqual(Content);
 	public override string ToString() => $"{{ BootstrapMethods [ {GU.ToString(Content)} ] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort BootstrapMethodCount))
 			return new MalformedAttribute("BootstrapMethods", Store);

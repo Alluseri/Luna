@@ -10,5 +10,7 @@ public class MethodTypeBootstrapArgument : BootstrapArgument {
 		this.Descriptor = Descriptor;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantMethodType(Pool.CheckoutUtf8(Descriptor.Term)));
+	protected override ushort Checkout(ConstantPool Pool) => Descriptor.Checkout(Pool);
+
+	public override string ToString() => $"{{ BArg::MethodType {Descriptor} }}";
 }

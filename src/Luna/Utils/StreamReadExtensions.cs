@@ -33,8 +33,16 @@ internal static class StreamReadExtensions {
 		return K != -1;
 	}
 
+	public static byte? ReadByteNullable(this Stream Self) {
+		int K = Self.ReadByte();
+		return K == -1 ? null : (byte) K;
+	}
+
 	public static bool ReadSafe(this Stream Self, uint Length, out byte[] Data) {
-		if (Length <= ChunkSize) // This won't cause issues with allocation
+		if (Length == 0) {
+			Data = Array.Empty<byte>();
+			return true;
+		} else if (Length <= ChunkSize) // This won't cause issues with allocation
 			return Self.Read(Data = new byte[Length]) == Length;
 		else if (Length > 0x7FFFFFC7) { // Not representable in C# (probably not Java either)
 			Data = Array.Empty<byte>();
@@ -69,6 +77,36 @@ internal static class StreamReadExtensions {
 			return true;
 		}
 	}
+
+	public static bool SkipSafe(this Stream Self, uint Length) {
+		if (Length == 0)
+			return true;
+		else if (Length > 0x7FFFFFC7) { // Not representable in C# (probably not Java either)
+			return false;
+		} else if (Length <= ChunkSize)
+			return Self.Read(new byte[Length]) == Length;
+		else { // Try chunked
+			int FullChunkCount = (int) (Length / ChunkSize);
+			byte[] FullChunk = new byte[ChunkSize];
+
+			for (long k = 0; k < FullChunkCount; k++) {
+				if (Self.Read(FullChunk) != ChunkSize) {
+					return false;
+				}
+			}
+
+			int Remainder = (int) (Length - (FullChunkCount * ChunkSize));
+
+			if (Self.Read(FullChunk, 0, Remainder) != Remainder) {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static MemoryStream? ReadSafeStream(this Stream Self, uint Length, out byte[] Data) => Self.ReadSafe(Length, out Data) ? new MemoryStream(Data) : null;
 
 
 	public static short ReadShort(this Stream Self) {

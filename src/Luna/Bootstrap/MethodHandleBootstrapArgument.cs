@@ -10,5 +10,7 @@ public class MethodHandleBootstrapArgument : BootstrapArgument {
 		this.Handle = Handle;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Handle.Checkout(Pool);
+	protected override ushort Checkout(ConstantPool Pool) => Handle.Checkout(Pool);
+
+	public override string ToString() => $"{{ BArg::MethodHandle {Handle} }}";
 }

@@ -12,6 +12,10 @@ public class InsnPutField : Instruction {
 		this.ClassName = ClassName;
 		this.Field = Field;
 	}
+	internal InsnPutField(CodeReader.ManagedFieldReference Imf) : base(3) {
+		ClassName = Imf.ClassName;
+		Field = Imf.Field;
+	}
 
 	internal override void Write(Stream Stream, CodeBuilder Builder) {
 		Stream.Write(Opcode.PutField);

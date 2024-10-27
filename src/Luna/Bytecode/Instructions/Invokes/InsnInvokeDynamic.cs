@@ -23,7 +23,7 @@ public class InsnInvokeDynamic : Instruction {
 		if (AttrBootstrapMethods == null)
 			Builder.Attributes.AddFirst(AttrBootstrapMethods = new BootstrapMethodsAttribute(new List<Internals.BootstrapMethod>()));
 
-		Internals.BootstrapMethod NewMethod = new(Bootstrap.Handle.Checkout(Builder.Pool), Bootstrap.Arguments.Select(Arg => Arg.Checkout(Builder.Pool)).ToArray());
+		Internals.BootstrapMethod NewMethod = new(Bootstrap.Handle.Checkout(Builder.Pool), Bootstrap.Arguments.Select(Arg => Arg.Checkout(Builder.Pool, AttrBootstrapMethods)).ToArray());
 
 		ushort IndyPool = Builder.Pool.Checkout(new ConstantInvokeDynamic(AttrBootstrapMethods.Checkout(NewMethod), Callee.Checkout(Builder.Pool)));
 

@@ -12,7 +12,6 @@ using System.Linq;
 namespace Alluseri.Luna {
 	public static class Program {
 		// ConstantValue
-		// SourceDebugExtension
 		// Synthetic
 		// AnnotationDefault
 
@@ -248,6 +247,53 @@ namespace Alluseri.Luna {
 			}
 		}
 
+		public static void CaseJarCollectUnknownInstructions(LunaJar JarFile) {
+			Dictionary<string, int> ErrorMessages = new();
+			double All = 0;
+			double Success = 0;
+			List<int> LinesPerSuccessfulMethod = new();
+			foreach (KeyValuePair<string, InternalClass> Kvp in JarFile.Classes) {
+				InternalClass Ic = Kvp.Value;
+
+				// Console.WriteLine($"Disassembling " + Kvp.Key);
+
+				foreach (MethodInfo Mi in Ic.Methods) {
+					try {
+						CodeAttribute? Ca = (CodeAttribute?) Mi.Attributes.FirstOrDefault(K => K is CodeAttribute);
+						if (Ca != null) {
+							List<Instruction>? Instructions = new CodeReader(Ic).Read(Ca);
+							if (Instructions == null) {
+								Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
+								continue;
+							}
+							All++;
+							Success++;
+							LinesPerSuccessfulMethod.Add(Instructions.Count);
+						}
+					} catch (InvalidDataException E) {
+						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+						All++;
+					} catch (NotImplementedException E) {
+						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+						All++;
+					} catch (Exception E) {
+						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+						All++;
+						// Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.")
+						// throw;
+					}
+				}
+			}
+
+			IOrderedEnumerable<KeyValuePair<string, int>> Log = ErrorMessages.OrderByDescending(K => K.Value);
+			Console.WriteLine("Exceptions sorted by appearance:");
+			foreach (KeyValuePair<string, int> L in Log) {
+				Console.WriteLine($"{L.Value} times: {L.Key}");
+			}
+			Console.WriteLine($"{Success:N0}/{All:N0} ({Success / All * 100:N2}%) methods were disassembled successfully.");
+			Console.WriteLine($"Average instructions per successfully disassembled method: {LinesPerSuccessfulMethod.Average():N1}.");
+		}
+
 		public static void CaseMassCollectUnknownInstructions(string DirPath) {
 			Dictionary<string, int> ErrorMessages = new();
 			double All = 0;
@@ -281,6 +327,9 @@ namespace Alluseri.Luna {
 					} catch (NotImplementedException E) {
 						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
 						All++;
+					} catch {
+						Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
+						throw;
 					}
 				}
 			}
@@ -297,8 +346,50 @@ namespace Alluseri.Luna {
 		public static void Main(string[] Args) {
 			// BenchmarkRunner.Run<Benchmark>();
 
-			CaseMassCollectUnknownInstructions("test/class/clean");
-			CaseMassCollectUnknownInstructions("test/class/obfuscated");
+			// CaseMassCollectUnknownInstructions("test/class/clean");
+			// CaseMassCollectUnknownInstructions("test/class/obfuscated");
+
+			/*string JPath = @"test\jar\obfuscated\obf.jar";
+			Console.Write($"Loading '{JPath}' ({new FileInfo(JPath).Length / 1024D / 1024D:N2} MiB): ");
+			Stopwatch Sw = Stopwatch.StartNew();
+			LunaJar Jar = new(File.OpenRead(JPath));
+			Sw.Stop();
+			Console.WriteLine(Sw.ElapsedMilliseconds + "ms");
+			CaseJarCollectUnknownInstructions(Jar);*/
+
+			/*ConstantPool Pool = new();
+
+			InternalClass Ic = new(
+				(0, 53),
+				Pool,
+				ClassAccessFlags.ACC_PUBLIC,
+				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUtf8("yipyap")))),
+				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUtf8("java/lang/Object")))),
+				Array.Empty<ushort>(),
+				Array.Empty<FieldInfo>(),
+				new MethodInfo[] {
+					new(MethodAccessFlags.ACC_PUBLIC, Pool.CheckoutUtf8("luna love"), Pool.CheckoutUtf8("()V"), new AttributeInfo[] {
+						new CodeAttribute(
+							0, 0, new byte[8], Array.Empty<ExceptionHandler>(), new AttributeInfo[] {
+								new CodeAttribute(
+									0, 0, new byte[8], Array.Empty<ExceptionHandler>(), new AttributeInfo[] {
+										new CustomMalformedAttribute("Code", 0x7FFFFFFF, new byte[]{00, 00})
+									}
+								)
+							}
+						)
+					})
+				},
+				Array.Empty<AttributeInfo>()
+			);
+
+			Ic.Checkout();
+
+			using (Stream F = File.Create(@"yipyap.class")) {
+				Ic.Write(F);
+			}
+
+			CaseSingularCollect("yipyap.class");*/
 
 			/*ConstantPool Cp = new();
 

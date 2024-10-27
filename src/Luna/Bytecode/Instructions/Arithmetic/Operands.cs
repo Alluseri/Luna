@@ -12,6 +12,10 @@ public enum BitwiseOperand : uint {
 	Integer, Long
 }
 
+public enum WhenNaN : uint {
+	Lesser, Greater
+}
+
 internal static class ArithmeticOperandExtensions {
 	public static char GetInstructionSign(this ArithmeticOperand Op) => Op switch {
 		ArithmeticOperand.Integer => 'i',
@@ -33,6 +37,11 @@ internal static class ArithmeticOperandExtensions {
 	public static char GetInstructionSign(this BitwiseOperand Op) => Op switch {
 		BitwiseOperand.Integer => 'i',
 		BitwiseOperand.Long => 'l',
+		_ => '?'
+	};
+	public static char GetInstructionSign(this WhenNaN Op) => Op switch {
+		WhenNaN.Greater => 'g',
+		WhenNaN.Lesser => 'l',
 		_ => '?'
 	};
 }

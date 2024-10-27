@@ -14,13 +14,15 @@ public class DynamicBootstrapArgument : BootstrapArgument {
 		this.ResolveTarget = ResolveTarget;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => throw new NotSupportedException($"{nameof(DynamicBootstrapArgument)} has to be checked out using the Checkout(ConstantPool, BootstrapMethodsAttribute) method.");
-	public ushort Checkout(ConstantPool Pool, BootstrapMethodsAttribute BootstrapMethods) {
-		Internals.BootstrapMethod NewMethod = new(Bootstrap.Handle.Checkout(Pool), Bootstrap.Arguments.Select(Arg => Arg.Checkout(Pool)).ToArray());
+	protected override ushort Checkout(ConstantPool Pool) => throw new NotSupportedException($"{nameof(DynamicBootstrapArgument)} has to be checked out using the Checkout(ConstantPool, BootstrapMethodsAttribute) method.");
+	public override ushort Checkout(ConstantPool Pool, BootstrapMethodsAttribute BootstrapMethods) {
+		Internals.BootstrapMethod NewMethod = new(Bootstrap.Handle.Checkout(Pool), Bootstrap.Arguments.Select(Arg => Arg.Checkout(Pool, BootstrapMethods)).ToArray());
 
 		return Pool.Checkout(new ConstantDynamic(
 			BootstrapMethods.Checkout(NewMethod),
 			ResolveTarget.CheckoutNameAndType(Pool)
 		));
 	}
+
+	public override string ToString() => $"{{ BArg::Dynamic {ResolveTarget} from {Bootstrap} }}";
 }

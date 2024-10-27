@@ -20,9 +20,10 @@ public class NestMembersAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is NestMembersAttribute Attr && Attr.Classes.SequenceEqual(Classes);
 	public override string ToString() => $"{{ NestMembers [ {GU.ToString(Classes.Select(Cl => $"#{Cl}"))} ] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort NumberOfClasses))
 			return new MalformedAttribute("NestMembers", Store);

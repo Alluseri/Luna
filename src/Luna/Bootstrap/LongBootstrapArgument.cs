@@ -9,5 +9,7 @@ public class LongBootstrapArgument : BootstrapArgument {
 		this.Value = Value;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantLong(Value));
+	protected override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantLong(Value));
+
+	public override string ToString() => $"{{ BArg::Long {Value}L }}";
 }

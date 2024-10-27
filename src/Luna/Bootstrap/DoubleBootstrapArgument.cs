@@ -9,5 +9,7 @@ public class DoubleBootstrapArgument : BootstrapArgument {
 		this.Value = Value;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantDouble(Value));
+	protected override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantDouble(Value));
+
+	public override string ToString() => $"{{ BArg::Double {Value}D }}";
 }

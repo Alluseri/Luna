@@ -9,5 +9,7 @@ public class FloatBootstrapArgument : BootstrapArgument {
 		this.Value = Value;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantFloat(Value));
+	protected override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantFloat(Value));
+
+	public override string ToString() => $"{{ BArg::Float {Value}F }}";
 }

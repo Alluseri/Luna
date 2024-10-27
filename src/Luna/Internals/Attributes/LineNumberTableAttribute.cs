@@ -20,9 +20,10 @@ public class LineNumberTableAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is LineNumberTableAttribute Attr && Attr.Lines.SequenceEqual(Lines);
 	public override string ToString() => $"{{ LineNumberTable [{GU.ToString(Lines.Select(Line => $"#{Line.InstructionIndex}:L{Line.LineNumber}"))}] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort LineNumberTableLength))
 			return new MalformedAttribute("LineNumberTable", Store);

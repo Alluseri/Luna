@@ -23,9 +23,10 @@ public class RuntimeParameterAnnotationsAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is RuntimeParameterAnnotationsAttribute Attr && Attr.Visible == Visible && Attr.Parameters.SequenceEqual(Parameters);
 	public override string ToString() => $"{{ {Name} [ {GU.ToString(Parameters)} ] }}";
 
-	public static AttributeInfo ParseRPA(Stream Stream, bool Visible) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? ParseRPA(Stream Stream, bool Visible) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		int ParameterCount = Substream.ReadByte();
 		if (ParameterCount == -1)
@@ -51,8 +52,8 @@ public class RuntimeParameterAnnotationsAttribute : AttributeInfo {
 
 	protected override void Write(Stream Stream) {
 		Stream.Write((byte) Parameters.Count);
-		foreach (AnnotationInfo[] Param in Parameters) {
-			Stream.Write((ushort) Param.Length);
+		foreach (IList<AnnotationInfo> Param in Parameters) {
+			Stream.Write((ushort) Param.Count);
 			foreach (AnnotationInfo Ai in Param)
 				Ai.Write(Stream);
 		}

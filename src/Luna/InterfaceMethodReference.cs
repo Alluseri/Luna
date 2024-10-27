@@ -5,10 +5,11 @@ namespace Alluseri.Luna;
 
 public class InterfaceMethodReference : ClassMemberReference<MethodDescriptor> {
 	public InterfaceMethodReference(string ClassName, MethodDescriptor Descriptor) : base(ClassName, Descriptor) { }
+	public InterfaceMethodReference(ReferenceTypeDescriptor ClassDescriptor, MethodDescriptor Descriptor) : base(ClassDescriptor, Descriptor) { }
 
 	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(
 		new ConstantInterfaceMethodRef(
-			Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(ClassName))),
+			ClassDescriptor.CheckoutSymbolic(Pool),
 			Descriptor.Checkout(Pool)
 		)
 	);

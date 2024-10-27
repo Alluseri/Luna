@@ -2,8 +2,14 @@ using System;
 
 namespace Alluseri.Luna;
 
-public class ObjectTypeDescriptor : TypeDescriptor {
-	public ObjectTypeDescriptor(string ObjectType) : base($"L{ObjectType};") { } // Requires / separators 
+public class ObjectTypeDescriptor : ReferenceTypeDescriptor {
+	private readonly string _ObjectType;
+	public override string SymbolicTerm => _ObjectType;
+
+	// Requires / separators
+	public ObjectTypeDescriptor(string ObjectType) : base($"L{ObjectType};") {
+		_ObjectType = ObjectType;
+	}
 
 	internal static new ObjectTypeDescriptor? Parse(ReadOnlySpan<char> Value, ref int Offset) {
 		if (Value[0] != 'L')

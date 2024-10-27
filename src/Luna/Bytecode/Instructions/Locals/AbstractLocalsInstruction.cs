@@ -1,4 +1,3 @@
-using Alluseri.Luna.Internals;
 using Alluseri.Luna.Utils;
 using System.IO;
 
@@ -13,7 +12,7 @@ public abstract class AbstractLocalsInstruction : Instruction {
 		set => Size = (_Slot = value) switch {
 			<= 3 => 1,
 			<= byte.MaxValue => 2,
-			_ => 3
+			_ => 4
 		};
 	}
 

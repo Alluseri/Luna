@@ -30,6 +30,13 @@ public class FieldDescriptor : Descriptor {
 			Pool.CheckoutUtf8(Term)
 		))
 	));
+	public ushort CheckoutFieldRef(ConstantPool Pool, ReferenceTypeDescriptor ClassDescriptor) => Pool.Checkout(new ConstantFieldRef(
+		ClassDescriptor.CheckoutSymbolic(Pool),
+		Pool.Checkout(new ConstantNameAndType(
+			Pool.CheckoutUtf8(Name),
+			Pool.CheckoutUtf8(Term)
+		))
+	));
 
 	public static FieldDescriptor FromSignature(string Name, string Signature)
 	=> new(Name, TypeDescriptor.Parse(Signature));

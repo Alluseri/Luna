@@ -1,20 +1,24 @@
 using Alluseri.Luna.Internals;
 using Alluseri.Luna.Utils;
-using System;
 
 namespace Alluseri.Luna;
 
 #pragma warning disable CS8618
 public class ClassBootstrapArgument : BootstrapArgument {
-	private string _ClassName;
+	public ReferenceTypeDescriptor Descriptor;
 	public string ClassName {
-		get => _ClassName;
-		set => _ClassName = value.Replace('.', '/'); // DESIGN: We NEED consistency for these replacements. Either we do it everywhere or we don't anywhere. ffs.
+		get => Descriptor.SymbolicTerm;
+		set => Descriptor = ReferenceTypeDescriptor.ParseSymbolic(value);
 	}
 
-	public ClassBootstrapArgument(string ClassName) {
-		this.ClassName = ClassName;
+	public ClassBootstrapArgument(string Descriptor) {
+		this.Descriptor = ReferenceTypeDescriptor.ParseSymbolic(Descriptor);
+	}
+	public ClassBootstrapArgument(ReferenceTypeDescriptor Descriptor) {
+		this.Descriptor = Descriptor;
 	}
 
-	public override ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(_ClassName)));
+	protected override ushort Checkout(ConstantPool Pool) => Descriptor.CheckoutSymbolic(Pool);
+
+	public override string ToString() => $"{{ BArg::Class {Descriptor} }}";
 }

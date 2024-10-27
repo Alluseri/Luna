@@ -43,7 +43,7 @@ public enum Opcode : byte {
 	If_ICmpEqual, If_ICmpNotEqual, If_ICmpLessThan, If_ICmpGreaterEqual, If_ICmpGreaterThan, If_ICmpLessEqual,
 	If_ACmpEqual, If_ACmpNotEqual,
 	Goto,
-	JumpSubr, RetSubr,
+	LegacyJsr, LegacyRet,
 	TableSwitch, LookupSwitch,
 	IReturn, LReturn, FReturn, DReturn, AReturn, Return,
 	GetStatic, PutStatic, GetField, PutField,
@@ -53,6 +53,6 @@ public enum Opcode : byte {
 	CheckCast, InstanceOf,
 	MonitorEnter, MonitorExit, Wide,
 	MultiANewArray,
-	IfNull, IfNotNull, Goto_W, JumpSubr_W,
+	IfNull, IfNotNull, Goto_W, LegacyJsr_W,
 	Breakpoint, ImpDep1 = 254, ImpDep2
 }

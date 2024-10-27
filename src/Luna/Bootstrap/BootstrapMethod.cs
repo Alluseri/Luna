@@ -24,18 +24,11 @@ public class BootstrapMethod {
 
 	public static BootstrapMethod FromInternal(InternalClass Class, Internals.BootstrapMethod Method) {
 		ConstantMethodHandle BootstrapHandle = Method.GetHandle(Class.ConstantPool);
-		ConstantMethodRef BootstrapReference = BootstrapHandle.GetInfo<ConstantMethodRef>(Class.ConstantPool);
-		string BootstrapClassName = BootstrapReference.GetClassName(Class.ConstantPool);
-
-		MethodDescriptor BootstrapDescriptor = MethodDescriptor.FromSignature(Class.ConstantPool, BootstrapReference.GetNameAndType(Class.ConstantPool));
-
-		BootstrapMethod Bootstrap = new(
-			new MethodHandle(BootstrapHandle.Kind, new MethodReference(BootstrapClassName, BootstrapDescriptor)),
+		return new(
+			new MethodHandle(BootstrapHandle.Kind, ClassMemberReference.FromConstant(Class.ConstantPool, BootstrapHandle.GetInfo(Class.ConstantPool))),
 			Method.ArgumentIndexes.Select(Ai => BootstrapArgument.FromConstant(Class, Class.ConstantPool[Ai]))
 		);
-
-		return Bootstrap;
 	}
 
-	public override string ToString() => $"{{ BootstrapMethod {Handle} [ {GU.ToString(Arguments)} ] }}";
+	public override string ToString() => $"{{ BootstrapMethod call to {Handle} with args [ {GU.ToString(Arguments)} ] }}";
 }

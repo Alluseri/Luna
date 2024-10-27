@@ -1,4 +1,4 @@
-using Alluseri.Luna.Exceptions;
+using Alluseri.Luna;
 using Alluseri.Luna.Utils;
 using System;
 using System.Collections.Generic;

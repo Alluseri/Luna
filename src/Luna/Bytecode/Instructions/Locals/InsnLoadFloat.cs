@@ -6,7 +6,6 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnLoadFloat : AbstractLocalsInstruction {
-	public InsnLoadFloat(short Slot) : this((ushort) Slot) { }
 	public InsnLoadFloat(ushort Slot) : base(Slot) { }
 
 	protected override Opcode SmallOpcode => Opcode.FLoad_0;

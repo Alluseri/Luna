@@ -20,9 +20,10 @@ public class MethodParametersAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is MethodParametersAttribute Attr && Attr.Parameters.SequenceEqual(Parameters);
 	public override string ToString() => $"{{ MethodParameters [ {string.Join(", ", Parameters.Select(Parameter => $"{{ #{Parameter.NameIndex}: 0x{Parameter.AccessFlags:X4} }}"))} ] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		int ParameterCount = Substream.ReadByte();
 		if (ParameterCount == -1)

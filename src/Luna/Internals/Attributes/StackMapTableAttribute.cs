@@ -20,9 +20,10 @@ public class StackMapTableAttribute : AttributeInfo {
 	public override bool Equals(object? Object) => Object is StackMapTableAttribute Attr && Attr.Frames.SequenceEqual(Frames);
 	public override string ToString() => $"{{ StackMapTable [ {GU.ToString(Frames)} ] }}";
 
-	public static AttributeInfo Parse(Stream Stream) {
-		byte[] Store = new byte[Stream.ReadUInt()];
-		using MemoryStream Substream = new(Store, 0, Stream.Read(Store));
+	public static AttributeInfo? Parse(Stream Stream) {
+		MemoryStream? Substream = Stream.ReadSafeStream(Stream.ReadUInt(), out byte[] Store);
+		if (Substream == null)
+			return null;
 
 		if (!Substream.ReadUShort(out ushort FrameCount))
 			return new MalformedAttribute("StackMapTable", Store);

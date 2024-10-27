@@ -1,10 +1,8 @@
 using Alluseri.Luna.Internals;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.IO.Hashing;
 
 namespace Alluseri.Luna;
 
@@ -25,12 +23,16 @@ public class LunaJar {
 				using (StreamReader ManifestReader = new(Entry.Open()))
 					Manifest = ManifestReader.ReadToEnd();
 			else if (Entry.FullName.EndsWith(".class") || Entry.FullName.EndsWith(".class/")) {
-				using (Stream EntryDeflate = Entry.Open()) {
-					using (MemoryStream CopyStream = new(checked((int) Entry.Length))) { // Can't represent over int. Too bad. You could do it normally. But DeflateStream is broken. ReadExactly is broken.
-						EntryDeflate.CopyTo(CopyStream);
-						CopyStream.Position = 0;
-						Classes[Entry.FullName] = new InternalClass(CopyStream);
+				try {
+					using (Stream EntryDeflate = Entry.Open()) {
+						using (MemoryStream CopyStream = new(checked((int) Entry.Length))) { // Can't represent over int? Too bad. You could do it normally, but DeflateStream is broken. ReadExactly is broken. Hell, everything is broken.
+							EntryDeflate.CopyTo(CopyStream);
+							CopyStream.Position = 0;
+							Classes[Entry.FullName] = new InternalClass(CopyStream);
+						}
 					}
+				} catch {
+					// TODO: Handle failures (like a failed class entries list)
 				}
 			}
 		}
