@@ -14,7 +14,7 @@ You have to build this project from source so like just dont pls ok?
 
 Also the API is currently HEAVILY inconsistent because I'm doing major refactors mid writing which is really REALLY stupid and I really do hate myself for this but yeah.
 
-**Despite the level of abstractness, it's not entry-level! E.g. no identifier filtering is done.**
+**Despite the level of abstractness, this is not entry-level! E.g. no identifier filtering is done.**
 
 ## Important notice
 Please don't hesitate to open issues regarding functionality of the library. Instead of wondering to yourself "why tf is this method/field marked as internal when I clearly need it right now?", "why does this method throw NotImplementedException?", "why is this piece of metadata is not preserved?" or "why do I have to do this when I could have an easier way of doing this?", you should ask that question in a GitHub Issue and get it resolved directly.

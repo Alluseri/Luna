@@ -12,7 +12,7 @@ public class ConstantMethodType : ConstantInfo {
 		this.DescriptorIndex = DescriptorIndex;
 	}
 
-	public string GetDescriptor(ConstantPool Pool) => ((ConstantUtf8) Pool[DescriptorIndex]).Value;
+	public string GetDescriptor(ConstantPool Pool) => ((ConstantUTF8) Pool[DescriptorIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(Tag, DescriptorIndex);
 	public override bool Equals(object? Object) => Object is ConstantMethodType Constant && Constant.DescriptorIndex == DescriptorIndex;

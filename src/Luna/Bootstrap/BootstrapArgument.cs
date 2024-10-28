@@ -25,7 +25,7 @@ public abstract class BootstrapArgument {
 	public static BootstrapArgument FromConstant(InternalClass Class, ConstantInfo Info) => Info switch {
 		ConstantClass CClass => new ClassBootstrapArgument(CClass.GetName(Class.ConstantPool)),
 		ConstantDynamic CDyn => new DynamicBootstrapArgument(
-			BootstrapMethod.FromInternal(Class, CDyn.GetBootstrapMethod(Class) ?? throw new InvalidDataException($"Recovery from a malformed ConDyn is not yet implemented.")),
+			BootstrapMethod.FromInternal(Class, CDyn.GetBootstrapMethod(Class) ?? throw new InvalidDataException($"Got a malformed ConstantDynamic (no BootstrapMethods attribute), recovery from this is not yet implemented.")),
 			FieldDescriptor.FromSignature(Class.ConstantPool, CDyn.GetNameAndType(Class.ConstantPool))),
 		ConstantString CString => new StringBootstrapArgument(CString.GetString(Class.ConstantPool)),
 		ConstantMethodHandle CMeh => new MethodHandleBootstrapArgument(new(CMeh.Kind, ClassMemberReference.FromConstant(Class.ConstantPool, CMeh.GetInfo(Class.ConstantPool)))),

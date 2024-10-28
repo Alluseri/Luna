@@ -10,7 +10,6 @@ using static Alluseri.Luna.BadInstructionReadException;
 namespace Alluseri.Luna.Bytecode;
 
 // TODO: Make Instruction.Read() internal because labels are UB.
-// DESIGN: Why don't I store MemoryStream for Code per-instance? Just try-finally it properly.
 // TODO: This is generally not very well-protected against memory leak attacks because I usually don't check integers. This is a mistake.
 
 public class CodeReader {
@@ -46,40 +45,52 @@ public class CodeReader {
 
 		using (MemoryStream Mes = new(Code.Bytecode, false)) {
 			for (int i = 0; Mes.Position < Mes.Length; i++) {
-				int Location = (int) Mes.Position;
+				int Address = (int) Mes.Position;
 
-				Instruction? Insn = ReadInstruction(Mes, Class, Location);
+				Instruction? Insn = ReadInstruction(Mes, Class, Address);
 
-				Instructions.Add((Insn, Location));
+				Instructions.Add((Insn, Address));
 
-				// TODO: Special case for TableSwitch.
 				if (Insn is AbstractSingleBranchInstruction Bop) {
 					if (!LabelIndexes.TryGetValue(Bop.TargetLocation, out Label? Lab)) {
 						PseudoInsnMap.GetOrNew(Bop.TargetLocation).Add(LabelIndexes[Bop.TargetLocation] = Lab = new($"LAB_{Bop.TargetLocation}"));
 					}
 					Bop.Target = Lab;
 				} else if (Insn is InsnLookupSwitch Ils) {
-					if (!LabelIndexes.TryGetValue(Ils.DefaultTargetLocation, out Label? DefaultLab)) {
-						PseudoInsnMap.GetOrNew(Ils.DefaultTargetLocation).Add(LabelIndexes[Ils.DefaultTargetLocation] = DefaultLab = new($"LAB_{Ils.DefaultTargetLocation}"));
+					if (!LabelIndexes.TryGetValue(Ils.DefaultCaseLocation, out Label? DefaultLab)) {
+						PseudoInsnMap.GetOrNew(Ils.DefaultCaseLocation).Add(LabelIndexes[Ils.DefaultCaseLocation] = DefaultLab = new($"LAB_{Ils.DefaultCaseLocation}"));
 					}
 					Ils.DefaultCase = DefaultLab;
-					Dictionary<int, Label> TargetDict = new(Ils.TargetLocations.Count);
-					foreach (KeyValuePair<int, int> Case in Ils.TargetLocations) {
+					SortedList<int, Label> CaseMap = new(Ils.CaseLocations.Count);
+					foreach (KeyValuePair<int, int> Case in Ils.CaseLocations) {
 						int CaseLocation = Case.Value;
 						if (!LabelIndexes.TryGetValue(CaseLocation, out Label? CaseLab)) {
 							PseudoInsnMap.GetOrNew(CaseLocation).Add(LabelIndexes[CaseLocation] = CaseLab = new($"LAB_{CaseLocation}"));
 						}
-						TargetDict[Case.Key] = CaseLab;
+						CaseMap[Case.Key] = CaseLab;
 					}
-					Ils.Cases = TargetDict;
+					Ils.Cases = CaseMap;
+				} else if (Insn is InsnTableSwitch Its) {
+					if (!LabelIndexes.TryGetValue(Its.DefaultTargetLocation, out Label? DefaultLab)) {
+						PseudoInsnMap.GetOrNew(Its.DefaultTargetLocation).Add(LabelIndexes[Its.DefaultTargetLocation] = DefaultLab = new($"LAB_{Its.DefaultTargetLocation}"));
+					}
+					Its.DefaultCase = DefaultLab;
+					List<Label> CaseList = new(Its.TargetLocations.Count);
+					foreach (int CaseLocation in Its.TargetLocations) {
+						if (!LabelIndexes.TryGetValue(CaseLocation, out Label? CaseLab)) {
+							PseudoInsnMap.GetOrNew(CaseLocation).Add(LabelIndexes[CaseLocation] = CaseLab = new($"LAB_{CaseLocation}"));
+						}
+						CaseList.Add(CaseLab);
+					}
+					Its.Cases = CaseList;
 				}
 			}
 		}
 
 		List<Instruction> FinalInstructions = new(Instructions.Count + PseudoInsnMap.Sum(L => L.Value.Count));
 
-		foreach ((Instruction Instruction, int Location) in Instructions) {
-			if (PseudoInsnMap.TryGetValue(Location, out List<PseudoInstruction>? Pseudos))
+		foreach ((Instruction Instruction, int Address) in Instructions) {
+			if (PseudoInsnMap.TryGetValue(Address, out List<PseudoInstruction>? Pseudos))
 				FinalInstructions.AddRange(Pseudos);
 
 			FinalInstructions.Add(Instruction);
@@ -120,9 +131,9 @@ public class CodeReader {
 			Opcode.BiPush => Stream.ReadSByte(out sbyte V) ? new InsnPushInteger(V) : throw StreamUnderread,
 			Opcode.SiPush => Stream.ReadShort(out short V) ? new InsnPushInteger(V) : throw StreamUnderread,
 
-			Opcode.Ldc => Stream.ReadByte(out byte LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, false) : throw StreamUnderread,
-			Opcode.Ldc_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, false) : throw StreamUnderread,
-			Opcode.Ldc2_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class.ConstantPool, true) : throw StreamUnderread,
+			Opcode.Ldc => Stream.ReadByte(out byte LdcIndex) ? ReadLdc(LdcIndex, Class, false) : throw StreamUnderread,
+			Opcode.Ldc_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class, false) : throw StreamUnderread,
+			Opcode.Ldc2_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class, true) : throw StreamUnderread,
 			#endregion
 
 			#region Locals (Load)
@@ -514,14 +525,17 @@ public class CodeReader {
 			Field = FieldDescriptor.FromSignature(Pool, ConFld.GetNameAndType(Pool))
 		};
 	}
-	private static Instruction ReadLdc(ushort Index, ConstantPool Pool, bool Wide) {
+	private static Instruction ReadLdc(ushort Index, InternalClass Class, bool Wide) {
+		ConstantPool Pool = Class.ConstantPool;
 		ConstantInfo Ci = Pool[Index];
 		if (Ci.IsWide && !Wide)
 			throw new BadInstructionReadException($"Mismatched state: requested a non-wide LDC, but the subject constant is wide.");
-		else if (Ci is ConstantDynamic Cdyn) {
-			// This thing is the reason why we'll have to pass Class here and not Pool, hahaha
-			// Make sure it never has the type L or J if not Wide. That's illegal, apparently.
-			throw new BadInstructionReadException($"Support for {Ci.Tag} as an LDC argument is not implemented at the moment.");
+
+		if (Ci is ConstantDynamic Cdyn) {
+			return new InsnPushDynamic(
+				BootstrapMethod.FromInternal(Class, Cdyn.GetBootstrapMethod(Class) ?? throw new BadInstructionReadException($"Got a malformed ConstantDynamic (no BootstrapMethods attribute), recovery from this is not yet implemented.")),
+				FieldDescriptor.FromSignature(Class.ConstantPool, Cdyn.GetNameAndType(Class.ConstantPool))
+			);
 		} else if (Ci is ConstantClass Cc) {
 			return new InsnPushClass(Cc.GetName(Pool));
 		} else if (Ci is ConstantMethodHandle Cm) {
@@ -530,8 +544,8 @@ public class CodeReader {
 			return new InsnPushMethodType(MethodTypeDescriptor.FromSignature(Pool, Cmt));
 		} else if (Ci is ConstantString Cs) {
 			return new InsnPushString(Cs.GetString(Pool));
-		} else if (Ci is ConstantInteger Cin)
-			return new InsnPushInteger(Cin.Value);
+		} else if (Ci is ConstantInteger Cint)
+			return new InsnPushInteger(Cint.Value);
 		else if (Ci is ConstantFloat Cf)
 			return new InsnPushFloat(Cf.Value);
 		else if (Ci is ConstantLong Cl)

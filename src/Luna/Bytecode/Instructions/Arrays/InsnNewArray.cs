@@ -17,7 +17,7 @@ public class InsnNewArray : Instruction {
 		this.TypeDescriptor = ReferenceTypeDescriptor.ParseSymbolic(TypeName);
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.ANewArray);
 		Stream.Write(TypeDescriptor.CheckoutSymbolic(Builder.Pool));
 	}

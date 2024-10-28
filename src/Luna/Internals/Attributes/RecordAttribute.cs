@@ -61,7 +61,7 @@ public class RecordAttribute : AttributeInfo {
 
 	protected override void Write(Stream Stream) => throw new InvalidOperationException($"{Name} has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {
-		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
+		Stream.Write(Pool.IndexOf(new ConstantUTF8(Name)));
 		Stream.Write(Size);
 		Stream.Write((ushort) Components.Count);
 		foreach (RecordComponentInfo Rci in Components)

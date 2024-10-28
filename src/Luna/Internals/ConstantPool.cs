@@ -26,6 +26,8 @@ public class ConstantPool : IEnumerable<ConstantInfo>, IEnumerable {
 		}
 	}
 
+	public ushort CheckoutUTF8(string Value) => Checkout(new ConstantUTF8(Value));
+
 	public bool IsInRange(int Index) => Index >= 0 && Index < Pool.Count;
 	public bool IsInRange(ushort Index) => Index > 0 && Index <= Pool.Count;
 

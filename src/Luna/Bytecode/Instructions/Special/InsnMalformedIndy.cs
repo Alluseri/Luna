@@ -13,7 +13,7 @@ public class InsnMalformedIndy : Instruction {
 		this.Callee = Callee;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.InvokeDynamic);
 		Stream.Write(Builder.Pool.Checkout(new ConstantInvokeDynamic(BootstrapMethodIndex, Callee.Checkout(Builder.Pool))));
 		Stream.WriteByte(0);

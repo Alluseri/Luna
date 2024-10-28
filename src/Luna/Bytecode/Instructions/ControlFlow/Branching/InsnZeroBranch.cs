@@ -17,7 +17,7 @@ public class InsnZeroBranch : AbstractSingleBranchInstruction {
 		this.Condition = Condition;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
+	internal override void Checkout(CodeBuilder Builder, int Address) {
 		Size = 3;
 	}
 

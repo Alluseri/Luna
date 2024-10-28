@@ -13,7 +13,7 @@ public class SourceFileAttribute : AttributeInfo {
 		this.NameIndex = NameIndex;
 	}
 
-	public string GetName(ConstantPool Pool) => ((ConstantUtf8) Pool[NameIndex]).Value;
+	public string GetName(ConstantPool Pool) => ((ConstantUTF8) Pool[NameIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(Name, NameIndex);
 	public override bool Equals(object? Object) => Object is SourceFileAttribute Attr && Attr.NameIndex == NameIndex;

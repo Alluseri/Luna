@@ -14,7 +14,7 @@ public class InsnOr : Instruction {
 		this.Operand = Operand;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.IOr, (uint) Operand);
 	}
 

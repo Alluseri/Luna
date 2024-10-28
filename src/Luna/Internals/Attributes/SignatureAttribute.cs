@@ -13,7 +13,7 @@ public class SignatureAttribute : AttributeInfo {
 		this.PoolIndex = PoolIndex;
 	}
 
-	public string GetSignature(ConstantPool Pool) => ((ConstantUtf8) Pool[PoolIndex]).Value;
+	public string GetSignature(ConstantPool Pool) => ((ConstantUTF8) Pool[PoolIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(Name, PoolIndex);
 	public override bool Equals(object? Object) => Object is SignatureAttribute Attr && Attr.PoolIndex == PoolIndex;

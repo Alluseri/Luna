@@ -20,8 +20,8 @@ public class LocalVariableEntry {
 		this.FrameIndex = FrameIndex;
 	}
 
-	public string GetName(ConstantPool Pool) => (string) (ConstantUtf8) Pool[NameIndex];
-	public string GetDescriptor(ConstantPool Pool) => (string) (ConstantUtf8) Pool[DescriptorIndex];
+	public string GetName(ConstantPool Pool) => (string) (ConstantUTF8) Pool[NameIndex];
+	public string GetDescriptor(ConstantPool Pool) => (string) (ConstantUTF8) Pool[DescriptorIndex];
 
 	public override int GetHashCode() => HashCode.Combine(Start, Length, NameIndex, DescriptorIndex, FrameIndex);
 	public override bool Equals(object? Object) => Object is LocalVariableEntry LVE && LVE.Start == Start && LVE.Length == Length && LVE.NameIndex == NameIndex && LVE.DescriptorIndex == DescriptorIndex && LVE.FrameIndex == FrameIndex;

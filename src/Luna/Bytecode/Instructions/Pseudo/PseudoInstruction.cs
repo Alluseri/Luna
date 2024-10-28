@@ -8,6 +8,6 @@ public abstract class PseudoInstruction(bool IsLabel = false) : Instruction(0) {
 
 	internal int Location = 0;
 
-	internal sealed override void Write(Stream Stream, CodeBuilder Class) { }
-	internal sealed override void Checkout(ConstantPool Pool) { }
+	internal sealed override void Write(Stream Stream, CodeBuilder Class, int Address) { }
+	internal sealed override void Checkout(CodeBuilder Pool, int Address) { }
 }

@@ -20,7 +20,7 @@ public abstract class ConstantInfo {
 	public static ConstantInfo Parse(Stream Stream) {
 		int Tag = Stream.ReadByte();
 		return (ConstantInfoTag) Tag switch {
-			ConstantInfoTag.UTF8 => new ConstantUtf8(Stream),
+			ConstantInfoTag.UTF8 => new ConstantUTF8(Stream),
 			ConstantInfoTag.Integer => new ConstantInteger(Stream),
 			ConstantInfoTag.Float => new ConstantFloat(Stream),
 			ConstantInfoTag.Long => new ConstantLong(Stream),

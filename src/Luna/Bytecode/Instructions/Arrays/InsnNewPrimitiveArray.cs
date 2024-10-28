@@ -13,7 +13,7 @@ public class InsnNewPrimitiveArray : Instruction {
 			throw new ArgumentOutOfRangeException(nameof(ArrayType), "Illegal primitive array type for this operation.");
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Class) {
+	internal override void Write(Stream Stream, CodeBuilder Class, int Address) {
 		Stream.Write(Opcode.NewArray);
 		Stream.Write((byte) ArrayType);
 	}

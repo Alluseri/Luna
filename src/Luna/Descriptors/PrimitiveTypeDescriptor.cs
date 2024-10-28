@@ -5,6 +5,8 @@ namespace Alluseri.Luna;
 public class PrimitiveTypeDescriptor : TypeDescriptor {
 	public readonly PrimitiveType Type;
 
+	// TODO: PrimitiveType.Descriptor() extension method
+
 	public PrimitiveTypeDescriptor(PrimitiveType Type) : base(Type switch {
 		PrimitiveType.Byte => "B",
 		PrimitiveType.Char => "C",
@@ -34,6 +36,8 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 			_ => null
 		};
 	}
+
+	public static implicit operator PrimitiveTypeDescriptor(PrimitiveType Type) => new(Type);
 }
 
 public enum PrimitiveType {

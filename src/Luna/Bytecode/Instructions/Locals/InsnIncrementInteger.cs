@@ -21,7 +21,7 @@ public class InsnIncrementInteger : Instruction {
 		this.Addend = Addend;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		switch (Size) {
 			case 3:
 			Stream.Write(Opcode.IInc);

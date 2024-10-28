@@ -53,7 +53,7 @@ public class InsnPrimitiveCast : Instruction {
 		};
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode);
 	}
 

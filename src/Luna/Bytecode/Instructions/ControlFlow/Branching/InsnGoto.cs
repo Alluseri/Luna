@@ -12,7 +12,7 @@ public class InsnGoto : AbstractSingleBranchInstruction {
 	}
 	public InsnGoto(Label Lab) : base(Lab) { }
 
-	internal override void Checkout(ConstantPool Pool) {
+	internal override void Checkout(CodeBuilder Builder, int Address) {
 		Size = 5;
 	}
 

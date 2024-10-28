@@ -18,11 +18,11 @@ public class InsnPushClass : Instruction {
 		this.Descriptor = Descriptor;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
-		Size = GetLdcSize(PoolIndex = Descriptor.CheckoutSymbolic(Pool));
+	internal override void Checkout(CodeBuilder Builder, int Address) {
+		Size = GetLdcSize(PoolIndex = Descriptor.CheckoutSymbolic(Builder.Pool));
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Ldc(Stream, PoolIndex);
 	}
 

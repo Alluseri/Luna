@@ -15,8 +15,8 @@ public class EnumEV : ElementValue {
 
 	public override int Size => 5;
 
-	public string GetTypeName(ConstantPool Pool) => ((ConstantUtf8) Pool[TypeNameIndex]).Value;
-	public string GetConstantName(ConstantPool Pool) => ((ConstantUtf8) Pool[ConstantNameIndex]).Value;
+	public string GetTypeName(ConstantPool Pool) => ((ConstantUTF8) Pool[TypeNameIndex]).Value;
+	public string GetConstantName(ConstantPool Pool) => ((ConstantUTF8) Pool[ConstantNameIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(nameof(EnumEV), TypeNameIndex, ConstantNameIndex);
 	public override bool Equals(object? Object) => Object is EnumEV IV && IV.TypeNameIndex == TypeNameIndex && IV.ConstantNameIndex == ConstantNameIndex;

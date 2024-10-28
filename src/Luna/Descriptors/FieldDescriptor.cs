@@ -20,21 +20,21 @@ public class FieldDescriptor : Descriptor {
 	public FieldDescriptor(string Name, TypeDescriptor FieldType) : this(FieldType, Name) { } // Recaf-style
 
 	public ushort CheckoutNameAndType(ConstantPool Pool) => Pool.Checkout(new ConstantNameAndType(
-		Pool.CheckoutUtf8(Name),
-		Pool.CheckoutUtf8(Term)
+		Pool.CheckoutUTF8(Name),
+		Pool.CheckoutUTF8(Term)
 	));
 	public ushort CheckoutFieldRef(ConstantPool Pool, string ClassName) => Pool.Checkout(new ConstantFieldRef(
-		Pool.Checkout(new ConstantClass(Pool.CheckoutUtf8(ClassName))),
+		Pool.Checkout(new ConstantClass(Pool.CheckoutUTF8(ClassName))),
 		Pool.Checkout(new ConstantNameAndType(
-			Pool.CheckoutUtf8(Name),
-			Pool.CheckoutUtf8(Term)
+			Pool.CheckoutUTF8(Name),
+			Pool.CheckoutUTF8(Term)
 		))
 	));
 	public ushort CheckoutFieldRef(ConstantPool Pool, ReferenceTypeDescriptor ClassDescriptor) => Pool.Checkout(new ConstantFieldRef(
 		ClassDescriptor.CheckoutSymbolic(Pool),
 		Pool.Checkout(new ConstantNameAndType(
-			Pool.CheckoutUtf8(Name),
-			Pool.CheckoutUtf8(Term)
+			Pool.CheckoutUTF8(Name),
+			Pool.CheckoutUTF8(Term)
 		))
 	));
 

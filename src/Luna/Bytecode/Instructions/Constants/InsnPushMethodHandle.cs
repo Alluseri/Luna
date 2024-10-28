@@ -12,11 +12,11 @@ public class InsnPushMethodHandle : Instruction {
 		this.Handle = Handle;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
-		Size = GetLdcSize(PoolIndex = Handle.Checkout(Pool));
+	internal override void Checkout(CodeBuilder Builder, int Address) {
+		Size = GetLdcSize(PoolIndex = Handle.Checkout(Builder.Pool));
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Ldc(Stream, PoolIndex);
 	}
 

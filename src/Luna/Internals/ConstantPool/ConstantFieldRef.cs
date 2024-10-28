@@ -15,7 +15,7 @@ public class ConstantFieldRef : ConstantInfo {
 	}
 
 	public ConstantClass GetClass(ConstantPool Pool) => (ConstantClass) Pool[ClassIndex];
-	public string GetClassName(ConstantPool Pool) => Pool.Value<ConstantUtf8>(((ConstantClass) Pool[ClassIndex]).NameIndex).Value;
+	public string GetClassName(ConstantPool Pool) => Pool.Value<ConstantUTF8>(((ConstantClass) Pool[ClassIndex]).NameIndex).Value;
 	public ConstantNameAndType GetNameAndType(ConstantPool Pool) => (ConstantNameAndType) Pool[NameAndTypeIndex];
 
 	public override int GetHashCode() => HashCode.Combine(Tag, ClassIndex, NameAndTypeIndex);

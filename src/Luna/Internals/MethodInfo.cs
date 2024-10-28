@@ -30,8 +30,8 @@ public class MethodInfo {
 		this.Attributes = Attributes;
 	}
 
-	public string GetName(ConstantPool Pool) => ((ConstantUtf8) Pool[NameIndex]).Value;
-	public string GetDescriptor(ConstantPool Pool) => ((ConstantUtf8) Pool[DescriptorIndex]).Value;
+	public string GetName(ConstantPool Pool) => ((ConstantUTF8) Pool[NameIndex]).Value;
+	public string GetDescriptor(ConstantPool Pool) => ((ConstantUTF8) Pool[DescriptorIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(AccessFlags, NameIndex, DescriptorIndex, Attributes);
 	public override bool Equals(object? Object) => Object is MethodInfo CFI && CFI.AccessFlags == AccessFlags && CFI.DescriptorIndex == DescriptorIndex && CFI.NameIndex == NameIndex && CFI.Attributes.SequenceEqual(Attributes);

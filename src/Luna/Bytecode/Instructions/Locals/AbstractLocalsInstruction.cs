@@ -23,7 +23,7 @@ public abstract class AbstractLocalsInstruction : Instruction {
 		this.Slot = Slot;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		switch (Size) {
 			case 1:
 			Stream.Write(SmallOpcode, Slot);

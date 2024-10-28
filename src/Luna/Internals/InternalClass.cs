@@ -153,8 +153,8 @@ public class InternalClass {
 	}
 
 	public ConstantClass GetThisClass() => (ConstantClass) ConstantPool[ThisClass];
-	public string GetThisClassName() => ConstantPool.Value<ConstantUtf8>(GetThisClass().NameIndex).Value;
+	public string GetThisClassName() => ConstantPool.Value<ConstantUTF8>(GetThisClass().NameIndex).Value;
 	public ConstantClass? GetSuperClass() => SuperClass == 0 ? null : (ConstantClass) ConstantPool[SuperClass];
-	public string? GetSuperClassName() => SuperClass == 0 ? null : ConstantPool.Value<ConstantUtf8>(GetSuperClass()!.NameIndex).Value;
+	public string? GetSuperClassName() => SuperClass == 0 ? null : ConstantPool.Value<ConstantUTF8>(GetSuperClass()!.NameIndex).Value;
 	public ConstantClass[] GetInterfaces() => Interfaces.Select(Idx => (ConstantClass) ConstantPool[Idx]).ToArray(); // DESIGN: Should we return IEnumerable instead?
 }

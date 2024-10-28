@@ -14,8 +14,8 @@ public class ConstantNameAndType : ConstantInfo {
 		this.DescriptorIndex = DescriptorIndex;
 	}
 
-	public string GetName(ConstantPool Pool) => ((ConstantUtf8) Pool[NameIndex]).Value;
-	public string GetDescriptor(ConstantPool Pool) => ((ConstantUtf8) Pool[DescriptorIndex]).Value;
+	public string GetName(ConstantPool Pool) => ((ConstantUTF8) Pool[NameIndex]).Value;
+	public string GetDescriptor(ConstantPool Pool) => ((ConstantUTF8) Pool[DescriptorIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(Tag, NameIndex, DescriptorIndex);
 	public override bool Equals(object? Object) => Object is ConstantNameAndType Constant && Constant.NameIndex == NameIndex && Constant.DescriptorIndex == DescriptorIndex;

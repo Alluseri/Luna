@@ -29,7 +29,7 @@ public abstract class AbstractInsnInvoke : Instruction {
 	}
 	public AbstractInsnInvoke(CodeReader.ManagedMethodReference Mref) : this(Mref.ClassName, Mref.Method, Mref.Interface) { }
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode);
 		Stream.Write(Builder.Pool.Checkout(Interface ? new ConstantInterfaceMethodRef(
 			ClassDescriptor.CheckoutSymbolic(Builder.Pool),

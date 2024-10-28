@@ -55,7 +55,7 @@ public class MethodParametersAttribute : AttributeInfo {
 // DESIGN: What to do with these lingering units? Keep them here or move into a separate class?
 
 public readonly record struct MethodParameter(ushort NameIndex, MethodParameterAccessFlags AccessFlags) {
-	public string GetName(ConstantPool Pool) => ((ConstantUtf8) Pool[NameIndex]).Value;
+	public string GetName(ConstantPool Pool) => ((ConstantUTF8) Pool[NameIndex]).Value;
 }
 
 [Flags]

@@ -12,7 +12,7 @@ public class ConstantString : ConstantInfo {
 		this.PoolIndex = PoolIndex;
 	}
 
-	public string GetString(ConstantPool Pool) => ((ConstantUtf8) Pool[PoolIndex]).Value;
+	public string GetString(ConstantPool Pool) => ((ConstantUTF8) Pool[PoolIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(Tag, PoolIndex);
 	public override bool Equals(object? Object) => Object is ConstantString Constant && Constant.PoolIndex == PoolIndex;

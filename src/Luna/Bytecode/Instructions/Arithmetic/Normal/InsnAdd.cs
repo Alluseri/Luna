@@ -15,7 +15,7 @@ public class InsnAdd : Instruction {
 		this.Operand = Operand;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.IAdd, (uint) Operand);
 	}
 

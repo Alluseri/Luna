@@ -9,27 +9,32 @@ namespace Alluseri.Luna.Bytecode;
 
 public class InsnLookupSwitch : Instruction {
 	public Label DefaultCase;
-	public IDictionary<int, Label> Cases;
+	public SortedList<int, Label> Cases;
 
-	internal int DefaultTargetLocation;
-	internal Dictionary<int, int> TargetLocations = null!;
+	internal int DefaultCaseLocation;
+	internal Dictionary<int, int> CaseLocations = null!;
 
-	internal InsnLookupSwitch(int DefaultTargetLocation, Dictionary<int, int> TargetLocations) {
-		this.DefaultTargetLocation = DefaultTargetLocation;
-		this.TargetLocations = TargetLocations;
+	internal InsnLookupSwitch(int DefaultCaseLocation, Dictionary<int, int> CaseLocations) {
+		this.DefaultCaseLocation = DefaultCaseLocation;
+		this.CaseLocations = CaseLocations;
 
 		DefaultCase = null!;
 		Cases = null!;
 	}
-	public InsnLookupSwitch(Label DefaultTarget, Dictionary<int, Label> Targets) {
-		this.DefaultCase = DefaultTarget;
-		this.Cases = Targets;
+	public InsnLookupSwitch(Label DefaultCase, IDictionary<int, Label> Cases) {
+		this.DefaultCase = DefaultCase;
+		this.Cases = new(Cases);
+	}
+	public InsnLookupSwitch(Label DefaultCase, SortedList<int, Label> Cases) {
+		this.DefaultCase = DefaultCase;
+		this.Cases = Cases;
 	}
 
-	internal override void Checkout(ConstantPool Pool) => base.Checkout(Pool);
-	internal override void Write(Stream Stream, CodeBuilder Class) => throw new UnreachableException("Write(,,) must be used to write ILS. What?");
+	internal override void Checkout(CodeBuilder Builder, int Address) {
+		Size = 1 + ((4 - ((Address + 1) % 4)) % 4) + 4 + 4 + Cases.Count * (4 + 4);
+	}
 
-	internal void Write(Stream Stream, CodeBuilder Class, int Address) {
+	internal override void Write(Stream Stream, CodeBuilder Class, int Address) {
 		Stream.Write(Opcode.LookupSwitch);
 		Stream.Write(stackalloc byte[Address % 4]);
 		Stream.Write(DefaultCase.Location - Address);

@@ -12,14 +12,14 @@ public class InsnPushFloat : Instruction {
 		this.Value = Value;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
+	internal override void Checkout(CodeBuilder Builder, int Address) {
 		Size = Value switch {
 			0 or 1 or 2 => 1,
-			_ => GetLdcSize(PoolIndex = Pool.Checkout(new ConstantFloat(Value)))
+			_ => GetLdcSize(PoolIndex = Builder.Pool.Checkout(new ConstantFloat(Value)))
 		};
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		switch (Value) {
 			case 0:
 			Stream.Write(Opcode.FConst_0);

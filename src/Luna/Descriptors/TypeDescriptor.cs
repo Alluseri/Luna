@@ -39,4 +39,6 @@ public abstract class TypeDescriptor : ConstantDescriptor {
 			return Arr;
 		throw new FormatException($"The type descriptor '{Descriptor}' is not valid.");
 	}
+
+	public static implicit operator TypeDescriptor(PrimitiveType Type) => new PrimitiveTypeDescriptor(Type);
 }

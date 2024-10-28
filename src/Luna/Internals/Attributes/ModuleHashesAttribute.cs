@@ -54,7 +54,7 @@ public class ModuleHashesAttribute : AttributeInfo {
 
 public readonly record struct ModuleHash(ushort ModuleNameIndex, byte[] Hash) {
 	public string GetModuleName(ConstantPool Pool) => ((ConstantModule) Pool[ModuleNameIndex]).GetName(Pool);
-	public string GetAlgorithm(ConstantPool Pool) => ((ConstantUtf8) Pool[ModuleNameIndex]).Value;
+	public string GetAlgorithm(ConstantPool Pool) => ((ConstantUTF8) Pool[ModuleNameIndex]).Value;
 
 	public override string ToString() => $"{{ ModuleHash #{ModuleNameIndex} [ {Convert.ToHexString(Hash)} ] }}";
 

@@ -13,7 +13,7 @@ public class ClassEV : ElementValue {
 
 	public override int Size => 3;
 
-	public string GetDescriptor(ConstantPool Pool) => ((ConstantUtf8) Pool[PoolIndex]).Value;
+	public string GetDescriptor(ConstantPool Pool) => ((ConstantUTF8) Pool[PoolIndex]).Value;
 
 	public override int GetHashCode() => HashCode.Combine(nameof(ClassEV), PoolIndex);
 	public override bool Equals(object? Object) => Object is ClassEV IV && IV.PoolIndex == PoolIndex;

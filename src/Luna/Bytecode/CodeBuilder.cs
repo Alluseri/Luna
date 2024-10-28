@@ -10,10 +10,12 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 	public ClassAttributeCollection Attributes;
 
 	public CodeBuilder(ConstantPool Pool) {
-
+		this.Pool = Pool;
+		this.Attributes = new();
 	}
 	public CodeBuilder(ConstantPool Pool, ClassAttributeCollection Attributes) {
-
+		this.Pool = Pool;
+		this.Attributes = Attributes;
 	}
 
 	/*private void ResolveGotoDeep(int Index, ) {
@@ -27,7 +29,7 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 			if (Insn is PseudoInstruction Pi) {
 				Pi.Location = Location; // Update the pseudo's location
 			} else {
-				Insn.Checkout(Pool); // Size is updated and safe to access
+				Insn.Checkout(this, Location); // Size is updated and safe to access
 				Location += Insn.Size;
 			}
 		}
@@ -42,10 +44,7 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 		int Address = 0;
 		using (MemoryStream Writer = new(Bytecode)) { // This will crash if we try to expand, which is great for debugging.
 			foreach (Instruction Insn in InstructionList) {
-				if (Insn is AbstractSingleBranchInstruction BrInsn)
-					BrInsn.Write(Writer, this, Address);
-				else
-					Insn.Write(Writer, this);
+				Insn.Write(Writer, this, Address);
 				Address += Insn.Size;
 			}
 		}

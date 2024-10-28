@@ -15,8 +15,5 @@ public abstract class AbstractSingleBranchInstruction : Instruction {
 		this.Target = Target;
 	}
 
-	internal override void Checkout(ConstantPool Pool) => base.Checkout(Pool);
-	internal override void Write(Stream Stream, CodeBuilder Class) => throw new UnreachableException("Write(,,) must be used to write ASBI. What?");
-
-	internal abstract void Write(Stream Stream, CodeBuilder Class, int Address);
+	internal abstract override void Write(Stream Stream, CodeBuilder Class, int Address);
 }

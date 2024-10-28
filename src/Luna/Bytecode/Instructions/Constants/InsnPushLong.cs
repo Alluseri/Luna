@@ -11,14 +11,14 @@ public class InsnPushLong : Instruction {
 		this.Value = Value;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
+	internal override void Checkout(CodeBuilder Builder, int Address) {
 		Size = Value switch {
 			0 or 1 => 1,
 			_ => 3,
 		};
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		switch (Value) {
 			case 0:
 			Stream.Write(Opcode.LConst_0);

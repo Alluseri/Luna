@@ -22,7 +22,7 @@ public abstract class AttributeInfo : ISizeable {
 	public static AttributeInfo? Parse(Stream Stream, ConstantPool Pool) {
 		if (!Stream.ReadUShort(out ushort Cv))
 			return null;
-		if (Pool[Cv] is not ConstantUtf8 Cu8)
+		if (Pool[Cv] is not ConstantUTF8 Cu8)
 			return InvalidAttribute.Parse(Stream, Cv);
 		return Cu8.Value switch {
 			"BootstrapMethods" => BootstrapMethodsAttribute.Parse(Stream),
@@ -50,13 +50,13 @@ public abstract class AttributeInfo : ISizeable {
 	}
 
 	public virtual void Checkout(ConstantPool Pool) {
-		Pool.Checkout(new ConstantUtf8(Name));
+		Pool.Checkout(new ConstantUTF8(Name));
 	}
 
 	protected abstract void Write(Stream Stream);
 	public virtual void Write(Stream Stream, ConstantPool Pool) {
 		// DEBUGTRACE: Console.WriteLine($"Started writing {Name} at {Stream.Position:X}"); // DEBUGTRACE
-		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
+		Stream.Write(Pool.IndexOf(new ConstantUTF8(Name)));
 		Stream.Write(Size);
 		Write(Stream);
 		// DEBUGTRACE: Console.WriteLine($"Finished writing {Name} at {Stream.Position:X}"); // DEBUGTRACE

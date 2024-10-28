@@ -23,7 +23,7 @@ public class CustomMalformedAttribute : AttributeInfo {
 
 	protected override void Write(Stream Stream) => throw new NotSupportedException($"IntentionallyMalformedAttribute has to be written using the Write(Stream, InternalConstantPool) method.");
 	public override void Write(Stream Stream, ConstantPool Pool) {
-		Stream.Write(Pool.IndexOf(new ConstantUtf8(Name)));
+		Stream.Write(Pool.IndexOf(new ConstantUTF8(Name)));
 		Stream.Write(FakeSize);
 		Stream.Write(Data);
 	}

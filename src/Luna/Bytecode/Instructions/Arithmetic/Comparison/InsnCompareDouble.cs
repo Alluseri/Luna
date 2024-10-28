@@ -14,7 +14,7 @@ public class InsnCompareDouble : Instruction {
 		this.WhenNaN = WhenNaN;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.DCmpL, (uint) WhenNaN);
 	}
 

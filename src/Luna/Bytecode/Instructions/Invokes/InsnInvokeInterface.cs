@@ -14,10 +14,10 @@ public class InsnInvokeInterface : Instruction {
 		this.Method = Method;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.InvokeInterface);
 		Stream.Write(Builder.Pool.Checkout(new ConstantInterfaceMethodRef(
-			Builder.Pool.Checkout(new ConstantClass(Builder.Pool.CheckoutUtf8(ClassName))),
+			Builder.Pool.Checkout(new ConstantClass(Builder.Pool.CheckoutUTF8(ClassName))),
 			Method.Checkout(Builder.Pool)
 		)));
 		// This is normally redundant, so if it overflows, it's not a big deal (I hope it's not checked):

@@ -29,17 +29,17 @@ public class InsnPushInteger : Instruction {
 		this.Value = Value;
 	}
 
-	internal override void Checkout(ConstantPool Pool) {
+	internal override void Checkout(CodeBuilder Builder, int Address) {
 		PoolIndex = 0;
 		Size = Value switch {
 			>= -1 and < 6 => 1,
 			>= sbyte.MinValue and <= sbyte.MaxValue => 2,
 			>= short.MinValue and <= short.MaxValue => 3,
-			_ => GetLdcSize(PoolIndex = Pool.Checkout(new ConstantInteger(Value)))
+			_ => GetLdcSize(PoolIndex = Builder.Pool.Checkout(new ConstantInteger(Value)))
 		};
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		checked { // DEBUGTRACE: This shall be removed in production
 			if (PoolIndex == 0) {
 				switch (Size) {

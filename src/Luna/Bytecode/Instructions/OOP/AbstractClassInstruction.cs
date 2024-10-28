@@ -19,7 +19,7 @@ public abstract class AbstractClassInstruction : Instruction {
 		this.ClassDescriptor = ClassDescriptor;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode);
 		Stream.Write(ClassDescriptor.CheckoutSymbolic(Builder.Pool));
 	}

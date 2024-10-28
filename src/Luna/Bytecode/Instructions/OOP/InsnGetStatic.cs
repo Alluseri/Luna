@@ -17,7 +17,7 @@ public class InsnGetStatic : Instruction {
 		Field = Imf.Field;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.GetStatic);
 		Stream.Write(Field.CheckoutFieldRef(Builder.Pool, ClassName));
 	}

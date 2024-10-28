@@ -12,6 +12,8 @@ public class InsnTableSwitch : Instruction {
 	public int MinMatch;
 	public IList<Label> Cases;
 
+	public int MaxMatch => MinMatch + Cases.Count - 1;
+
 	internal int DefaultTargetLocation;
 	internal List<int> TargetLocations = null!;
 
@@ -27,15 +29,16 @@ public class InsnTableSwitch : Instruction {
 		this.Cases = Targets;
 	}
 
-	internal override void Checkout(ConstantPool Pool) => base.Checkout(Pool);
-	internal override void Write(Stream Stream, CodeBuilder Class) => throw new UnreachableException("Write(,,) must be used to write ITS. What?");
+	internal override void Checkout(CodeBuilder Builder, int Address) {
+		Size = 1 + ((4 - ((Address + 1) % 4)) % 4) + 4 + 4 + 4 + Cases.Count * 4;
+	}
 
-	internal void Write(Stream Stream, CodeBuilder Class, int Address) {
+	internal override void Write(Stream Stream, CodeBuilder Class, int Address) {
 		Stream.Write(Opcode.TableSwitch);
-		Stream.Write(stackalloc byte[Address % 4]);
+		Stream.Write(stackalloc byte[(4 - ((Address + 1) % 4)) % 4]);
 		Stream.Write(DefaultCase.Location - Address);
 		Stream.Write(MinMatch);
-		Stream.Write(MinMatch + Cases.Count - 1);
+		Stream.Write(MaxMatch);
 		foreach (Label Lb in Cases) {
 			Stream.Write(Lb.Location - Address);
 		}

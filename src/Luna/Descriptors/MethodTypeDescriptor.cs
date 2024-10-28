@@ -18,7 +18,7 @@ public class MethodTypeDescriptor : Descriptor {
 
 	public MethodTypeDescriptor(CompoundTypeDescriptor Arguments, TypeDescriptor ReturnType) : this(ReturnType, Arguments) { } // LL-style
 
-	public ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantMethodType(Pool.CheckoutUtf8(Term)));
+	public ushort Checkout(ConstantPool Pool) => Pool.Checkout(new ConstantMethodType(Pool.CheckoutUTF8(Term)));
 
 	public static MethodTypeDescriptor FromSignature(string Signature) {
 		ReadOnlySpan<char> R = Signature;

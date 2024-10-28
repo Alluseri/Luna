@@ -9,15 +9,15 @@ namespace Alluseri.Luna.Bytecode;
 public class InsnInvokeDynamic : Instruction {
 	// Bootstrap(Callee, ...)(StackArgs)
 
-	BootstrapMethod Bootstrap;
-	MethodDescriptor Callee;
+	public BootstrapMethod Bootstrap;
+	public MethodDescriptor Callee;
 
 	public InsnInvokeDynamic(BootstrapMethod Bootstrap, MethodDescriptor Callee) : base(5) {
 		this.Bootstrap = Bootstrap;
 		this.Callee = Callee;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		BootstrapMethodsAttribute? AttrBootstrapMethods = Builder.Attributes.BootstrapMethods;
 
 		if (AttrBootstrapMethods == null)
@@ -33,5 +33,5 @@ public class InsnInvokeDynamic : Instruction {
 		Stream.WriteByte(0);
 	}
 
-	public override string ToString() => $"invokedynamic {Callee} from {Bootstrap}";
+	public override string ToString() => $"invokedynamic {Callee.FullDescriptor} from {Bootstrap}";
 }

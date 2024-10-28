@@ -24,5 +24,5 @@ public class DynamicBootstrapArgument : BootstrapArgument {
 		));
 	}
 
-	public override string ToString() => $"{{ BArg::Dynamic {ResolveTarget} from {Bootstrap} }}";
+	public override string ToString() => $"{{ BArg::Dynamic {ResolveTarget.FullDescriptor} from {Bootstrap} }}";
 }

@@ -11,7 +11,7 @@ public abstract class ZeroOpInstruction : Instruction {
 		this.Mnemonic = Mnemonic;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) => Stream.Write(Opcode);
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) => Stream.Write(Opcode);
 
 	public override string ToString() => Mnemonic;
 }

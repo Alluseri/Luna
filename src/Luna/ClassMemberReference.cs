@@ -1,4 +1,5 @@
 using Alluseri.Luna.Internals;
+using System;
 using System.IO;
 
 namespace Alluseri.Luna;
@@ -20,7 +21,7 @@ public abstract class ClassMemberReference {
 		ConstantMethodRef CMethod => new MethodReference(CMethod.GetClassName(Pool), MethodDescriptor.FromSignature(Pool, CMethod.GetNameAndType(Pool))),
 		ConstantInterfaceMethodRef CIMethod => new InterfaceMethodReference(CIMethod.GetClassName(Pool), MethodDescriptor.FromSignature(Pool, CIMethod.GetNameAndType(Pool))),
 		ConstantFieldRef CField => new FieldReference(CField.GetClassName(Pool), FieldDescriptor.FromSignature(Pool, CField.GetNameAndType(Pool))),
-		_ => throw new InvalidDataException($"Cannot represent {Info} as a managed class member reference.")
+		_ => throw new ArgumentException($"Cannot represent {Info} as a managed class member reference.")
 	};
 }
 

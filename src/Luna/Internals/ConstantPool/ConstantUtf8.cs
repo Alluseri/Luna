@@ -7,10 +7,10 @@ using System.Text;
 
 namespace Alluseri.Luna.Internals;
 
-public class ConstantUtf8 : ConstantInfo { // TODO: Test Chinese characters(UTF-32 surrogates) and confirm their functionality
+public class ConstantUTF8 : ConstantInfo { // TODO: Test Chinese characters(UTF-32 surrogates) and confirm their functionality
 	public readonly string Value;
-	public ConstantUtf8(Stream Stream) : this(Stream.ReadSegment(Stream.ReadUShort())) { }
-	public ConstantUtf8(Span<byte> Bytes) : base(ConstantInfoTag.UTF8) {
+	public ConstantUTF8(Stream Stream) : this(Stream.ReadSegment(Stream.ReadUShort())) { }
+	public ConstantUTF8(Span<byte> Bytes) : base(ConstantInfoTag.UTF8) {
 		StringBuilder Sb = new();
 		for (int i = 0; i < Bytes.Length; i++) {
 			byte Byte = Bytes[i];
@@ -26,15 +26,15 @@ public class ConstantUtf8 : ConstantInfo { // TODO: Test Chinese characters(UTF-
 		}
 		Value = Sb.ToString();
 	}
-	public ConstantUtf8(string Value) : base(ConstantInfoTag.UTF8) {
+	public ConstantUTF8(string Value) : base(ConstantInfoTag.UTF8) {
 		this.Value = Value;
 	}
 
 	public override int GetHashCode() => HashCode.Combine(Tag, Value);
-	public override bool Equals(object? Object) => Object is ConstantUtf8 Constant && Constant.Value == Value;
+	public override bool Equals(object? Object) => Object is ConstantUTF8 Constant && Constant.Value == Value;
 	public override string ToString() => $"{{ Utf8 \"{Value}\" }}";
 
-	public static explicit operator string(ConstantUtf8 Self) => Self.Value;
+	public static explicit operator string(ConstantUTF8 Self) => Self.Value;
 
 	public override void Write(Stream Stream) {
 		Stream.Write((byte) ConstantInfoTag.UTF8);

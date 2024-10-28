@@ -14,7 +14,7 @@ public class InsnStoreInArray : Instruction {
 		this.ArrayType = ArrayType;
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder) {
+	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.IAStore, (uint) ArrayType);
 	}
 

@@ -1,9 +1,10 @@
 using Alluseri.Luna.Internals;
+using Alluseri.Luna.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Alluseri.Luna.Utils; // DESIGN: Or does it belong elsewhere?
+namespace Alluseri.Luna;
 
 public abstract class AttributeCollection : ICollection<AttributeInfo> {
 	protected Dictionary<string, LinkedList<AttributeInfo>> Attributes = new();
@@ -23,14 +24,40 @@ public abstract class AttributeCollection : ICollection<AttributeInfo> {
 			Add(Info);
 	}
 
-	public void Add(AttributeInfo Info) => Attributes.GetOrNew(Info.Name).AddLast(Info);
-	public void AddFirst(AttributeInfo Info) => Attributes.GetOrNew(Info.Name).AddFirst(Info);
+	public void Add(AttributeInfo Info) {
+		Attributes.GetOrNew(Info.Name).AddLast(Info);
+		_CacheCount++;
+	}
+	public void AddFirst(AttributeInfo Info) {
+		Attributes.GetOrNew(Info.Name).AddFirst(Info);
+		_CacheCount++;
+	}
 
-	public void Clear() => Attributes.Clear();
+	public void Clear() {
+		Attributes.Clear();
+		_CacheCount = 0;
+	}
 
 	public bool Contains(AttributeInfo Info) => Attributes.TryGetValue(Info.Name, out var InfoList) && InfoList.Contains(Info);
-	public bool Remove(AttributeInfo Info) => Attributes.TryGetValue(Info.Name, out var InfoList) && InfoList.Remove(Info);
-	public void CopyTo(AttributeInfo[] Array, int ArrayIndex) => throw new NotImplementedException("was too lazy to implement, please make an issue or pr if you want to use this");
+	public bool Remove(AttributeInfo Info) {
+		if (Attributes.TryGetValue(Info.Name, out var InfoList)) {
+			if (InfoList.Remove(Info)) {
+				_CacheCount--;
+				return true;
+			}
+		}
+		return false;
+	}
+	public void CopyTo(AttributeInfo[] Array, int ArrayIndex) {
+		ArgumentOutOfRangeException.ThrowIfNegative(ArrayIndex);
+
+		int i = ArrayIndex;
+		foreach (AttributeInfo Info in this) {
+			if (ArrayIndex >= Array.Length)
+				throw new ArgumentException("There was not enough space in the target array from the given starting position to the array's end.");
+			Array[i++] = Info;
+		}
+	}
 
 	IEnumerator<AttributeInfo> IEnumerable<AttributeInfo>.GetEnumerator() {
 		foreach (LinkedList<AttributeInfo> List in Attributes.Values) {

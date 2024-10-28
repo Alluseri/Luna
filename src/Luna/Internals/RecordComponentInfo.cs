@@ -5,8 +5,8 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public record RecordComponentInfo(ushort NameIndex, ushort DescriptorIndex, IList<AttributeInfo> Attributes) {
-	public string GetName(ConstantPool Pool) => ((ConstantUtf8) Pool[NameIndex]).Value;
-	public string GetDescriptor(ConstantPool Pool) => ((ConstantUtf8) Pool[DescriptorIndex]).Value;
+	public string GetName(ConstantPool Pool) => ((ConstantUTF8) Pool[NameIndex]).Value;
+	public string GetDescriptor(ConstantPool Pool) => ((ConstantUTF8) Pool[DescriptorIndex]).Value;
 
 	public override string ToString() => $"{{ RecordComponent {NameIndex}:{DescriptorIndex} [ {GU.ToString(Attributes)} ] }}";
 

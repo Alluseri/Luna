@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Hashing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Alluseri.Luna {
 	public static class Program {
@@ -327,6 +328,9 @@ namespace Alluseri.Luna {
 					} catch (NotImplementedException E) {
 						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
 						All++;
+					} catch (NotSupportedException E) {
+						ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+						All++;
 					} catch {
 						Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
 						throw;
@@ -345,6 +349,36 @@ namespace Alluseri.Luna {
 
 		public static void Main(string[] Args) {
 			// BenchmarkRunner.Run<Benchmark>();
+
+			CaseSingularIO("test/class/obfuscated/g.class", false);
+
+			/*InternalClass Ic = new(File.OpenRead("test/class/obfuscated/g.class"));
+			foreach (MethodInfo Mi in Ic.Methods) {
+				Console.WriteLine(Mi.GetName(Ic.ConstantPool) + Mi.GetDescriptor(Ic.ConstantPool));
+				CodeAttribute? Ca = (CodeAttribute?) Mi.Attributes.FirstOrDefault(K => K is CodeAttribute);
+				if (Ca == null)
+					Console.WriteLine("\tNo CodeAttribute found.");
+				else {
+					List<Instruction>? T = new CodeReader(Ic).Read(Ca);
+					if (T == null)
+						Console.WriteLine("\tFailed to disassemble.");
+					else
+						foreach (Instruction I in T)
+							if (I is InsnInvokeDynamic Indy && Indy.Callee.Name.Contains(';')) {
+								Console.WriteLine($"\tYes, indy callee name has a semicolon: {Indy.Callee.Name}");
+								foreach (BootstrapArgument Ba in Indy.Bootstrap.Arguments) {
+									if (Ba is DynamicBootstrapArgument Dba && Dba.ResolveTarget.Name.Contains(';')) {
+										Console.WriteLine($"\tYes, indy condy arg has a semicolon: {Dba.ResolveTarget.Name}");
+									}
+								}
+							}
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+			foreach (FieldInfo Fi in Ic.Fields) {
+				Console.WriteLine(Fi.GetDescriptor(Ic.ConstantPool) + " " + Fi.GetName(Ic.ConstantPool));
+			}*/
 
 			// CaseMassCollectUnknownInstructions("test/class/clean");
 			// CaseMassCollectUnknownInstructions("test/class/obfuscated");
@@ -368,7 +402,7 @@ namespace Alluseri.Luna {
 				Array.Empty<ushort>(),
 				Array.Empty<FieldInfo>(),
 				new MethodInfo[] {
-					new(MethodAccessFlags.ACC_PUBLIC, Pool.CheckoutUtf8("luna love"), Pool.CheckoutUtf8("()V"), new AttributeInfo[] {
+					new(MethodAccessFlags.ACC_PUBLIC, Pool.CheckoutUTF8("luna love"), Pool.CheckoutUTF8("()V"), new AttributeInfo[] {
 						new CodeAttribute(
 							0, 0, new byte[8], Array.Empty<ExceptionHandler>(), new AttributeInfo[] {
 								new CodeAttribute(
@@ -397,8 +431,8 @@ namespace Alluseri.Luna {
 				13,
 				Cp,
 				ClassAccessFlags.ACC_PUBLIC,
-				Cp.Checkout(new ConstantClass(Cp.CheckoutUtf8("dev/lunahook/Test"))),
-				Cp.Checkout(new ConstantClass(Cp.CheckoutUtf8("java/lang/Object"))),
+				Cp.Checkout(new ConstantClass(Cp.CheckoutUTF8("dev/lunahook/Test"))),
+				Cp.Checkout(new ConstantClass(Cp.CheckoutUTF8("java/lang/Object"))),
 				Array.Empty<ushort>(),
 				Array.Empty<FieldInfo>(),
 				Array.Empty<MethodInfo>(),
@@ -406,7 +440,6 @@ namespace Alluseri.Luna {
 			);
 
 			Label EscapeLab = new("MyEscapeLabel");
-			Label StackOverflowLab = new("RipStack");
 
 			List<Instruction> InsnList = new() {
 				new InsnPushInteger(40),
@@ -414,13 +447,31 @@ namespace Alluseri.Luna {
 				new InsnStoreInteger(1),
 				new InsnPushInteger(3),
 				new InsnMultiply(ArithmeticOperand.Integer),
+				new InsnPushDynamic(
+					new BootstrapMethod(
+						new MethodHandle(
+							MethodHandleReferenceKind.InvokeStatic,
+							new MethodReference(
+								"dev/lunahook/TestBootstrap",
+								new MethodDescriptor(
+									PrimitiveType.Int,
+									"typedBootstrap",
+									new CompoundTypeDescriptor(
+										new ObjectTypeDescriptor("java/lang/invoke/MethodHandles/Lookup"),
+										new ObjectTypeDescriptor("java/lang/String"),
+										new ObjectTypeDescriptor("java/lang/Class"),
+										new ObjectTypeDescriptor("java/lang/Long")
+									)
+								)
+							)
+						),
+						new LongBootstrapArgument(20340104320L)
+					),
+					new FieldDescriptor(new PrimitiveTypeDescriptor(PrimitiveType.Int), "useless field name")
+				),
+				new InsnMultiply(ArithmeticOperand.Integer),
 				new InsnGoto(EscapeLab),
-				//StackOverflowLab,
-				//new InsnDup(),
-				//new InsnPushNull(),
-				//new InsnGoto(StackOverflowLab),
 				EscapeLab,
-				// TODO: PrimitiveType.Descriptor() extension method
 				new InsnInvokeStatic("dev/lunahook/Logger", new MethodDescriptor(
 					new PrimitiveTypeDescriptor(PrimitiveType.Void),
 					"logInteger",
@@ -438,7 +489,8 @@ namespace Alluseri.Luna {
 			Console.WriteLine();
 
 			Console.WriteLine("Bytecode form:");
-			byte[] Bytecode = new CodeBuilder(Ic).Build(InsnList);
+			CodeBuilder Cb = new(Ic.ConstantPool);
+			byte[] Bytecode = Cb.Build(InsnList);
 			Console.WriteLine(Convert.ToHexString(Bytecode));
 			Console.WriteLine();
 
@@ -448,6 +500,7 @@ namespace Alluseri.Luna {
 					new LineEntry(4, 9)
 				})
 			});
+			Ic.Attributes = Cb.Attributes.ToArray();
 
 			Console.WriteLine("Disassembled form:");
 			List<Instruction>? Disasm = new CodeReader(Ic).Read(Ca);
@@ -459,7 +512,7 @@ namespace Alluseri.Luna {
 				}
 
 			Ic.Methods = new[] {
-				new MethodInfo(MethodAccessFlags.ACC_PUBLIC, Cp.CheckoutUtf8("runTest"), Cp.CheckoutUtf8("()V"), new[] {
+				new MethodInfo(MethodAccessFlags.ACC_PUBLIC, Cp.CheckoutUTF8("runTest"), Cp.CheckoutUTF8("()V"), new AttributeInfo[] {
 					Ca
 				})
 			};
@@ -472,7 +525,6 @@ namespace Alluseri.Luna {
 
 			Console.WriteLine("Dummy CF demo read:");
 			CaseSingularCollect("dummycf.class");*/
-
 
 			/*using Stream F = File.OpenRead(@"test/class/obfuscated/$$E.class");
 			Stopwatch Sw = Stopwatch.StartNew();

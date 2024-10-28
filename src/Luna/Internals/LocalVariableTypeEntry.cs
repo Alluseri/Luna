@@ -26,8 +26,8 @@ public class LocalVariableTypeEntry {
 		this.FrameIndex = FrameIndex;
 	}
 
-	public string GetName(ConstantPool Pool) => (string) (ConstantUtf8) Pool[NameIndex];
-	public string GetSignature(ConstantPool Pool) => (string) (ConstantUtf8) Pool[SignatureIndex];
+	public string GetName(ConstantPool Pool) => (string) (ConstantUTF8) Pool[NameIndex];
+	public string GetSignature(ConstantPool Pool) => (string) (ConstantUTF8) Pool[SignatureIndex];
 
 	public override int GetHashCode() => HashCode.Combine(Start, Length, NameIndex, SignatureIndex, FrameIndex);
 	public override bool Equals(object? Object) => Object is LocalVariableTypeEntry LVTE && LVTE.Start == Start && LVTE.Length == Length && LVTE.NameIndex == NameIndex && LVTE.SignatureIndex == SignatureIndex && LVTE.FrameIndex == FrameIndex;
