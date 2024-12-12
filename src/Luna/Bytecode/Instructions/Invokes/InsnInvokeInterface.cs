@@ -6,11 +6,20 @@ using System.Linq;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnInvokeInterface : Instruction {
-	public string ClassName;
+	public ReferenceTypeDescriptor Class;
 	public MethodDescriptor Method;
 
+	public string ClassName {
+		get => Class.SymbolicTerm;
+		set => Class = ReferenceTypeDescriptor.ParseSymbolic(value);
+	}
+
+	public InsnInvokeInterface(ReferenceTypeDescriptor Class, MethodDescriptor Method) : base(5) {
+		this.Class = Class;
+		this.Method = Method;
+	}
 	public InsnInvokeInterface(string ClassName, MethodDescriptor Method) : base(5) {
-		this.ClassName = ClassName;
+		this.Class = ReferenceTypeDescriptor.ParseSymbolic(ClassName);
 		this.Method = Method;
 	}
 

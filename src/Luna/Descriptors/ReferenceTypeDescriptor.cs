@@ -10,5 +10,8 @@ public abstract class ReferenceTypeDescriptor : TypeDescriptor {
 	public virtual string SymbolicTerm => Term;
 	public ushort CheckoutSymbolic(ConstantPool Pool) => Pool.Checkout(new ConstantClass(Pool.CheckoutUTF8(SymbolicTerm)));
 
-	public static ReferenceTypeDescriptor ParseSymbolic(string Value) => (ReferenceTypeDescriptor?) ArrayTypeDescriptor.Parse(Value) ?? new ObjectTypeDescriptor(Value);
+	// DESIGN: hahaha i hate this:
+	public static ReferenceTypeDescriptor ParseSymbolic(string Value) => (ReferenceTypeDescriptor?) ArrayTypeDescriptor.Parse(Value) ?? (
+		Value.StartsWith('L') && Value.EndsWith(';') ? (ObjectTypeDescriptor.Parse(Value) ?? new ObjectTypeDescriptor(Value)) : new ObjectTypeDescriptor(Value)
+	);
 }

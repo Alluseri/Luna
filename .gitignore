@@ -5,6 +5,7 @@
 
 test/
 writeups/
+dev/
 *.class
 
 # User-specific files

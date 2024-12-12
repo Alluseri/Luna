@@ -12,7 +12,7 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 		PrimitiveType.Char => "C",
 		PrimitiveType.Double => "D",
 		PrimitiveType.Float => "F",
-		PrimitiveType.Int => "I",
+		PrimitiveType.Integer => "I",
 		PrimitiveType.Long => "J",
 		PrimitiveType.Short => "S",
 		PrimitiveType.Boolean => "Z",
@@ -28,7 +28,7 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 			'C' => new(PrimitiveType.Char),
 			'D' => new(PrimitiveType.Double),
 			'F' => new(PrimitiveType.Float),
-			'I' => new(PrimitiveType.Int),
+			'I' => new(PrimitiveType.Integer),
 			'J' => new(PrimitiveType.Long),
 			'S' => new(PrimitiveType.Short),
 			'Z' => new(PrimitiveType.Boolean),
@@ -41,5 +41,5 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 }
 
 public enum PrimitiveType {
-	Byte, Char, Double, Float, Int, Long, Short, Boolean, Void
+	Byte, Char, Double, Float, Integer, Long, Short, Boolean, Void
 }

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Alluseri.Luna.Internals;
 
-public class ConstantUTF8 : ConstantInfo { // TODO: Test Chinese characters(UTF-32 surrogates) and confirm their functionality
+public class ConstantUTF8 : ConstantInfo {
 	public readonly string Value;
 	public ConstantUTF8(Stream Stream) : this(Stream.ReadSegment(Stream.ReadUShort())) { }
 	public ConstantUTF8(Span<byte> Bytes) : base(ConstantInfoTag.UTF8) {

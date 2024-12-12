@@ -9,7 +9,7 @@ namespace Alluseri.Luna;
 public abstract class AttributeCollection : ICollection<AttributeInfo> {
 	protected Dictionary<string, LinkedList<AttributeInfo>> Attributes = new();
 
-	private int _CacheCount = 0; // TODO: UPDATE CACHE WHERE RELEVANT ARGH GFDGHDFGHH
+	private int _CacheCount = 0;
 	public int Count => _CacheCount;
 
 	public bool IsReadOnly => false;

@@ -8,18 +8,7 @@ using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
-/*
-	DESIGN IMPLICATIONS [LEGACY]
-	This mostly has the basis of being as writable as it can be without changing the internal state of the object, as in:
-	- You can add new entries to the ConstantPool, but it does not affect the internal references to the pool from other elements of the class file.
-	- Likewise with Version: as we don't check for backwards-compatibility(or anything for that matter) in a class that belongs to Luna.Internals,
-	  we only write this field to the output file as it is never referenced by anything else.
-	- Same as the above applies to Interfaces: we only write it to output, never read it internally.
-	- If we look recursively into Fields and Methods, then the same is applicable there.
-	- If you end up overwriting Attributes, this won't affect the internal state as we never reference them directly.
-
-	Getter functions(GetThisClass, GetSuperClass, GetInterfaces) expect valid data, which is beneficial because there can be no CCEs in valid classes.
-*/
+// TODO: I DONT FUCKING HAVE CHECKS FOR ANY OVERFLOWS WHATSOEVER WTF
 
 public class InternalClass {
 	public /*readonly*/ (ushort Minor, ushort Major) Version;

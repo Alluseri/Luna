@@ -16,4 +16,6 @@ public class CompoundTypeDescriptor : Descriptor {
 	}
 
 	public override string Term => string.Join("", Descriptors);
+
+	public static implicit operator CompoundTypeDescriptor(TypeDescriptor[] Descriptors) => new(Descriptors);
 }

@@ -1,45 +1,45 @@
+using Alluseri.Luna.Bytecode;
 using Alluseri.Luna.Internals;
 using Alluseri.Luna.Utils;
-using System;
 using System.IO;
 
-namespace Alluseri.Luna.Bytecode;
+namespace Alluseri.Luna;
 
-public class InsnPushInteger : Instruction {
+public class StackConstantInteger : StackConstant {
 	public int Value;
 
+	private int Size;
 	private ushort PoolIndex;
 
-	public InsnPushInteger(int Value) {
+	public StackConstantInteger(int Value) {
 		this.Value = Value;
 	}
-	public InsnPushInteger(uint Value) {
-		this.Value = (int) Value;
-	}
-	public InsnPushInteger(short Value) {
+	public StackConstantInteger(short Value) {
 		this.Value = Value;
 	}
-	public InsnPushInteger(ushort Value) {
+	public StackConstantInteger(ushort Value) {
 		this.Value = Value;
 	}
-	public InsnPushInteger(byte Value) {
+	public StackConstantInteger(byte Value) {
 		this.Value = Value;
 	}
-	public InsnPushInteger(sbyte Value) {
+	public StackConstantInteger(sbyte Value) {
 		this.Value = Value;
 	}
 
-	internal override void Checkout(CodeBuilder Builder, int Address) {
+	internal override void CheckoutLdc(CodeBuilder Builder, out int Size) {
 		PoolIndex = 0;
-		Size = Value switch {
+		this.Size = Size = Value switch {
 			>= -1 and < 6 => 1,
 			>= sbyte.MinValue and <= sbyte.MaxValue => 2,
 			>= short.MinValue and <= short.MaxValue => 3,
-			_ => GetLdcSize(PoolIndex = Builder.Pool.Checkout(new ConstantInteger(Value)))
+			_ => GetLdcSize(PoolIndex = CheckoutPool(Builder))
 		};
 	}
 
-	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
+	internal override ushort CheckoutPool(CodeBuilder Builder) => Builder.Pool.Checkout(new ConstantInteger(Value));
+
+	internal override void WriteLdc(Stream Stream) {
 		checked { // DEBUGTRACE: This shall be removed in production
 			if (PoolIndex == 0) {
 				switch (Size) {
@@ -60,5 +60,6 @@ public class InsnPushInteger : Instruction {
 		}
 	}
 
-	public override string ToString() => $"push.i {Value}";
+	public override string ToString() => $"{{ Integer {Value} }}";
+	public override string ToLdcString() => $"push.i {Value}";
 }

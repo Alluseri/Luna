@@ -26,6 +26,8 @@ public class MethodDescriptor : Descriptor {
 		Pool.CheckoutUTF8(Term)
 	));
 
+	// DESIGN: Rename FromSignature to something more sensible - signatures are managed, descriptors are internal.
+
 	public static MethodDescriptor FromSignature(string Name, string Signature) {
 		ReadOnlySpan<char> R = Signature;
 		if (R[0] != '(')

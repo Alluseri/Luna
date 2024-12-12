@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Hashing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Alluseri.Luna {
@@ -124,7 +125,7 @@ namespace Alluseri.Luna {
 				} else {
 					for (int i = 0; i < F.Length; i++) {
 						if (F.ReadByte() != O.ReadByte()) {
-							Console.WriteLine($"Incorrect byte at position {i:X}!.");
+							Console.WriteLine($"Incorrect byte at position {i:X}!");
 							break;
 						}
 					}
@@ -166,6 +167,8 @@ namespace Alluseri.Luna {
 			if (DumpPool) {
 				for (ushort i = 1; i <= Ic.ConstantPool.Count; i++)
 					Console.WriteLine(i + "(" + i.ToString("X4") + "): " + Ic.ConstantPool[i]);
+				foreach (AttributeInfo Ai in Ic.Attributes)
+					Console.WriteLine(Ai);
 			}
 
 			Sw = Stopwatch.StartNew();
@@ -248,7 +251,7 @@ namespace Alluseri.Luna {
 			}
 		}
 
-		public static void CaseJarCollectUnknownInstructions(LunaJar JarFile) {
+		public static void CaseJarCollectUnknownInstructions(JarFile JarFile) {
 			Dictionary<string, int> ErrorMessages = new();
 			double All = 0;
 			double Success = 0;
@@ -295,6 +298,56 @@ namespace Alluseri.Luna {
 			Console.WriteLine($"Average instructions per successfully disassembled method: {LinesPerSuccessfulMethod.Average():N1}.");
 		}
 
+		public static void CaseSingularCollectUnknownInstructions(string Fpath) {
+			Dictionary<string, int> ErrorMessages = new();
+			double All = 0;
+			double Success = 0;
+			List<int> LinesPerSuccessfulMethod = new();
+			using Stream F = File.OpenRead(Fpath);
+			Console.Write("Loading " + Path.GetFileName(Fpath) + ": ");
+			Stopwatch Sw = Stopwatch.StartNew();
+			InternalClass Ic = new(F);
+			Sw.Stop();
+
+			Console.WriteLine(Sw.ElapsedMilliseconds + "ms");
+
+			foreach (MethodInfo Mi in Ic.Methods) {
+				try {
+					CodeAttribute? Ca = (CodeAttribute?) Mi.Attributes.FirstOrDefault(K => K is CodeAttribute);
+					if (Ca != null) {
+						List<Instruction>? Instructions = new CodeReader(Ic).Read(Ca);
+						if (Instructions == null) {
+							Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
+							continue;
+						}
+						All++;
+						Success++;
+						LinesPerSuccessfulMethod.Add(Instructions.Count);
+					}
+				} catch (InvalidDataException E) {
+					ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+					All++;
+				} catch (NotImplementedException E) {
+					ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+					All++;
+				} catch (NotSupportedException E) {
+					ErrorMessages[E.Message] = ErrorMessages.GetValueOrDefault(E.Message, 0) + 1;
+					All++;
+				} catch {
+					Console.WriteLine($"A method with malformed bytecode was not disassembled: {Mi.GetName(Ic.ConstantPool)}{Mi.GetDescriptor(Ic.ConstantPool)}.");
+					throw;
+				}
+			}
+
+			IOrderedEnumerable<KeyValuePair<string, int>> Log = ErrorMessages.OrderByDescending(K => K.Value);
+			Console.WriteLine("Exceptions sorted by appearance:");
+			foreach (KeyValuePair<string, int> L in Log) {
+				Console.WriteLine($"{L.Value} times: {L.Key}");
+			}
+			Console.WriteLine($"{Success:N0}/{All:N0} ({Success / All * 100:N2}%) methods were disassembled successfully.");
+			Console.WriteLine($"Average instructions per successfully disassembled method: {LinesPerSuccessfulMethod.Average():N1}.");
+		}
+
 		public static void CaseMassCollectUnknownInstructions(string DirPath) {
 			Dictionary<string, int> ErrorMessages = new();
 			double All = 0;
@@ -308,6 +361,8 @@ namespace Alluseri.Luna {
 				Sw.Stop();
 
 				Console.WriteLine(Sw.ElapsedMilliseconds + "ms");
+
+				Sw.Restart();
 
 				foreach (MethodInfo Mi in Ic.Methods) {
 					try {
@@ -336,6 +391,8 @@ namespace Alluseri.Luna {
 						throw;
 					}
 				}
+
+				Console.WriteLine($"Disassembled in {Sw.ElapsedMilliseconds}ms.");
 			}
 
 			IOrderedEnumerable<KeyValuePair<string, int>> Log = ErrorMessages.OrderByDescending(K => K.Value);
@@ -350,7 +407,29 @@ namespace Alluseri.Luna {
 		public static void Main(string[] Args) {
 			// BenchmarkRunner.Run<Benchmark>();
 
-			CaseSingularIO("test/class/obfuscated/g.class", false);
+			// CaseMassCollectUnknownInstructions("test/class/forged/x");
+
+			// CaseSingularIO("test/class/forged/x/Test4.class", false);
+
+			CaseSingularCollectUnknownInstructions("test/class/forged/x/Test.class");
+
+			/*InternalClass KIc = new(File.OpenRead("test/class/forged/x/Test.class!"));
+			KIc.Methods = KIc.Methods.Append(new MethodInfo(MethodAccessFlags.ACC_PUBLIC | MethodAccessFlags.ACC_STATIC, KIc.ConstantPool.CheckoutUTF8("bootstrap"), KIc.ConstantPool.CheckoutUTF8("([Ljava/lang/Object;)I"), [new CodeAttribute(2, 2, new byte[] { 3, 172 }, new List<ExceptionHandler>(), new List<AttributeInfo>())])).ToArray();
+			using (FileStream O = File.Create("test/class/forged/x/Test.class")) {
+				KIc.Write(O);
+			}*/
+
+			/*InternalClass KIc = new(File.OpenRead("test/class/forged/x/Test.class"));
+			foreach (AttributeInfo Ai in KIc.Attributes) {
+				if (Ai is BootstrapMethodsAttribute) {
+					Console.WriteLine(Ai);
+					return;
+				}
+			}*/
+
+			return;
+
+			// CaseSingularIO("test/class/obfuscated/g.class", false);
 
 			/*InternalClass Ic = new(File.OpenRead("test/class/obfuscated/g.class"));
 			foreach (MethodInfo Mi in Ic.Methods) {
@@ -397,8 +476,8 @@ namespace Alluseri.Luna {
 				(0, 53),
 				Pool,
 				ClassAccessFlags.ACC_PUBLIC,
-				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUtf8("yipyap")))),
-				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUtf8("java/lang/Object")))),
+				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUTF8("yipyap")))),
+				Pool.Checkout(new ConstantClass(Pool.Checkout(new ConstantUTF8("java/lang/Object")))),
 				Array.Empty<ushort>(),
 				Array.Empty<FieldInfo>(),
 				new MethodInfo[] {
@@ -425,13 +504,13 @@ namespace Alluseri.Luna {
 
 			CaseSingularCollect("yipyap.class");*/
 
-			/*ConstantPool Cp = new();
+			ConstantPool Cp = new();
 
 			InternalClass Ic = new(
 				13,
 				Cp,
 				ClassAccessFlags.ACC_PUBLIC,
-				Cp.Checkout(new ConstantClass(Cp.CheckoutUTF8("dev/lunahook/Test"))),
+				Cp.Checkout(new ConstantClass(Cp.CheckoutUTF8("dev/lunahook/lullaby/Coverall"))),
 				Cp.Checkout(new ConstantClass(Cp.CheckoutUTF8("java/lang/Object"))),
 				Array.Empty<ushort>(),
 				Array.Empty<FieldInfo>(),
@@ -441,67 +520,57 @@ namespace Alluseri.Luna {
 
 			Label EscapeLab = new("MyEscapeLabel");
 
+			/*
+			Coverage:
+
+			*/
+
 			List<Instruction> InsnList = new() {
-				new InsnPushInteger(40),
-				new InsnDup(),
-				new InsnStoreInteger(1),
-				new InsnPushInteger(3),
-				new InsnMultiply(ArithmeticOperand.Integer),
-				new InsnPushDynamic(
-					new BootstrapMethod(
-						new MethodHandle(
-							MethodHandleReferenceKind.InvokeStatic,
-							new MethodReference(
-								"dev/lunahook/TestBootstrap",
-								new MethodDescriptor(
-									PrimitiveType.Int,
-									"typedBootstrap",
-									new CompoundTypeDescriptor(
-										new ObjectTypeDescriptor("java/lang/invoke/MethodHandles/Lookup"),
-										new ObjectTypeDescriptor("java/lang/String"),
-										new ObjectTypeDescriptor("java/lang/Class"),
-										new ObjectTypeDescriptor("java/lang/Long")
-									)
-								)
-							)
-						),
-						new LongBootstrapArgument(20340104320L)
-					),
-					new FieldDescriptor(new PrimitiveTypeDescriptor(PrimitiveType.Int), "useless field name")
-				),
-				new InsnMultiply(ArithmeticOperand.Integer),
-				new InsnGoto(EscapeLab),
-				EscapeLab,
-				new InsnInvokeStatic("dev/lunahook/Logger", new MethodDescriptor(
-					new PrimitiveTypeDescriptor(PrimitiveType.Void),
-					"logInteger",
-					new CompoundTypeDescriptor(
-						new PrimitiveTypeDescriptor(PrimitiveType.Int)
-					)
-				)),
+				new TryBlockStart("ex_silly_cast"),
+				new TryBlockStart("ex_silly_cast$1"),
+				new InsnPush(new StackConstantInteger(-1)),
+				new InsnNew("java/lang/Integer"),
+				new InsnDup_X1(),
+				new InsnSwap(),
+				new InsnInvokeSpecial("java/lang/Integer", new MethodDescriptor(PrimitiveType.Void, "<init>", new(PrimitiveType.Integer))),
+				new InsnCheckCast("java/lang/Throwable"),
+				new TryBlockEnd("ex_silly_cast$1"),
+				new TryBlockEnd("ex_silly_cast"),
+				new InsnThrow(),
+				new TryBlockCatchHandler("ex_silly_cast", "java/lang/Error"),
+				new InsnLoadReference(0),
+				new InsnPush(new StackConstantInteger(0)),
+				new InsnPush(new StackConstantString("рекомендую этот плейлист к прослушиванию -> https://www.youtube.com/playlist?list=PLuPCd5VIscosG72QWT03BBZriNDEbryea <- このプレイリストを聴くことをお勧めします")),
+				new InsnStoreInArray(ArrayType.Reference),
+				new TryBlockCatchHandler("ex_silly_cast$1"),
+				// Verifier trap 1: we have a java/lang/Throwable on the stack here, but it can also be a java/lang/Error
+				// The true identity of this exception is java/lang/ClassCastException
+				new InsnThrow(), // todo replaca
 				new InsnReturn()
 			};
 
+			CodeBuilder Cb = new(Ic.ConstantPool);
+			CodeAttribute Ca = Cb.Build(InsnList, new() {
+				IgnoreMalformedTryBlocks = false
+			});
+
+			#region Managed Form Log
 			Console.WriteLine("Managed form:");
 			foreach (Instruction Insn in InsnList) {
 				Console.WriteLine($"\t{Insn}");
 			}
 			Console.WriteLine();
+			#endregion
 
+			#region Bytecode Form Log
 			Console.WriteLine("Bytecode form:");
-			CodeBuilder Cb = new(Ic.ConstantPool);
-			byte[] Bytecode = Cb.Build(InsnList);
-			Console.WriteLine(Convert.ToHexString(Bytecode));
+			Console.WriteLine(Convert.ToHexString(Ca.Bytecode));
 			Console.WriteLine();
+			#endregion
 
-			CodeAttribute Ca = new(8, 8, Bytecode, Array.Empty<ExceptionHandler>(), new[] {
-				new LineNumberTableAttribute(new[] {
-					new LineEntry(0, 4),
-					new LineEntry(4, 9)
-				})
-			});
 			Ic.Attributes = Cb.Attributes.ToArray();
 
+			#region Disassembled Form Log
 			Console.WriteLine("Disassembled form:");
 			List<Instruction>? Disasm = new CodeReader(Ic).Read(Ca);
 			if (Disasm == null)
@@ -510,21 +579,23 @@ namespace Alluseri.Luna {
 				foreach (Instruction Insn in Disasm) {
 					Console.WriteLine($"\t{Insn}");
 				}
+			#endregion
 
 			Ic.Methods = new[] {
-				new MethodInfo(MethodAccessFlags.ACC_PUBLIC, Cp.CheckoutUTF8("runTest"), Cp.CheckoutUTF8("()V"), new AttributeInfo[] {
+				new MethodInfo(MethodAccessFlags.ACC_PUBLIC | MethodAccessFlags.ACC_STATIC, Cp.CheckoutUTF8("main"), Cp.CheckoutUTF8("([Ljava/lang/String;)V"), new AttributeInfo[] {
 					Ca
 				})
 			};
 
-			using (FileStream Fs = File.OpenWrite("dummycf.class")) {
+			using (FileStream Fs = File.Create("dev/lunahook/lullaby/Coverall.class")) {
 				Ic.Checkout();
 				Ic.Write(Fs);
 			}
 			Console.WriteLine("Dummy CF saved to current directory.");
 
 			Console.WriteLine("Dummy CF demo read:");
-			CaseSingularCollect("dummycf.class");*/
+			CaseSingularCollect("dev/lunahook/lullaby/Coverall.class");
+			// CaseSingularIO("dev/lunahook/lullaby/Coverall.class", false);
 
 			/*using Stream F = File.OpenRead(@"test/class/obfuscated/$$E.class");
 			Stopwatch Sw = Stopwatch.StartNew();

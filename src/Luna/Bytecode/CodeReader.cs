@@ -9,17 +9,16 @@ using static Alluseri.Luna.BadInstructionReadException;
 
 namespace Alluseri.Luna.Bytecode;
 
-// TODO: Make Instruction.Read() internal because labels are UB.
-// TODO: This is generally not very well-protected against memory leak attacks because I usually don't check integers. This is a mistake.
+// TODO: This is generally not very well-protected against memory leak attacks because I usually don't check integers. That is a big mistake.
 
 public class CodeReader {
-	private InternalClass Class;
+	public readonly InternalClass Class;
 
 	public CodeReader(InternalClass Class) {
 		this.Class = Class;
 	}
 
-	public List<Instruction>? Read(CodeAttribute Code) {
+	public List<Instruction> Read(CodeAttribute Code) {
 		// TODO: Verify the validity of all bytecode locations for **all pseudos**. Branches fail immediately(because of SMT). Others need inspection in JVM verifier.
 
 		// TODO: Benchmark 2 dicts vs 1 dict with valuetuple as value
@@ -40,7 +39,7 @@ public class CodeReader {
 			string Identifier = $"EH_{i}";
 			PseudoInsnMap.GetOrNew(EH.Start).Add(new TryBlockStart(Identifier));
 			PseudoInsnMap.GetOrNew(EH.End).Add(new TryBlockEnd(Identifier));
-			PseudoInsnMap.GetOrNew(EH.Handler).Add(new TryCatchHandler(Identifier, EH.GetCatchType(Class.ConstantPool)?.GetName(Class.ConstantPool)));
+			PseudoInsnMap.GetOrNew(EH.Handler).Add(new TryBlockCatchHandler(Identifier, EH.GetCatchType(Class.ConstantPool)?.GetName(Class.ConstantPool)));
 		}
 
 		using (MemoryStream Mes = new(Code.Bytecode, false)) {
@@ -110,26 +109,26 @@ public class CodeReader {
 			#region Constants
 			Opcode.AConst_Null => new InsnPushNull(),
 
-			Opcode.IConst_M1 => new InsnPushInteger(-1),
-			Opcode.IConst_0 => new InsnPushInteger(0),
-			Opcode.IConst_1 => new InsnPushInteger(1),
-			Opcode.IConst_2 => new InsnPushInteger(2),
-			Opcode.IConst_3 => new InsnPushInteger(3),
-			Opcode.IConst_4 => new InsnPushInteger(4),
-			Opcode.IConst_5 => new InsnPushInteger(5),
+			Opcode.IConst_M1 => new InsnPush(new StackConstantInteger(-1)),
+			Opcode.IConst_0 => new InsnPush(new StackConstantInteger(0)),
+			Opcode.IConst_1 => new InsnPush(new StackConstantInteger(1)),
+			Opcode.IConst_2 => new InsnPush(new StackConstantInteger(2)),
+			Opcode.IConst_3 => new InsnPush(new StackConstantInteger(3)),
+			Opcode.IConst_4 => new InsnPush(new StackConstantInteger(4)),
+			Opcode.IConst_5 => new InsnPush(new StackConstantInteger(5)),
 
-			Opcode.LConst_0 => new InsnPushLong(0),
-			Opcode.LConst_1 => new InsnPushLong(1),
+			Opcode.LConst_0 => new InsnPush(new StackConstantLong(0)),
+			Opcode.LConst_1 => new InsnPush(new StackConstantLong(1)),
 
-			Opcode.FConst_0 => new InsnPushFloat(0),
-			Opcode.FConst_1 => new InsnPushFloat(1),
-			Opcode.FConst_2 => new InsnPushFloat(2),
+			Opcode.FConst_0 => new InsnPush(new StackConstantFloat(0)),
+			Opcode.FConst_1 => new InsnPush(new StackConstantFloat(1)),
+			Opcode.FConst_2 => new InsnPush(new StackConstantFloat(2)),
 
-			Opcode.DConst_0 => new InsnPushDouble(0),
-			Opcode.DConst_1 => new InsnPushDouble(1),
+			Opcode.DConst_0 => new InsnPush(new StackConstantDouble(0)),
+			Opcode.DConst_1 => new InsnPush(new StackConstantDouble(1)),
 
-			Opcode.BiPush => Stream.ReadSByte(out sbyte V) ? new InsnPushInteger(V) : throw StreamUnderread,
-			Opcode.SiPush => Stream.ReadShort(out short V) ? new InsnPushInteger(V) : throw StreamUnderread,
+			Opcode.BiPush => Stream.ReadSByte(out sbyte V) ? new InsnPush(new StackConstantInteger(V)) : throw StreamUnderread,
+			Opcode.SiPush => Stream.ReadShort(out short V) ? new InsnPush(new StackConstantInteger(V)) : throw StreamUnderread,
 
 			Opcode.Ldc => Stream.ReadByte(out byte LdcIndex) ? ReadLdc(LdcIndex, Class, false) : throw StreamUnderread,
 			Opcode.Ldc_W => Stream.ReadUShort(out ushort LdcIndex) ? ReadLdc(LdcIndex, Class, false) : throw StreamUnderread,
@@ -364,7 +363,7 @@ public class CodeReader {
 			Opcode.InvokeDynamic => ReadInvokeDynamic(Stream, Class),
 			#endregion
 
-			Opcode.New => new InsnCheckCast(ReadClassName(Stream, Class.ConstantPool)),
+			Opcode.New => new InsnNew(ReadClassName(Stream, Class.ConstantPool)),
 			Opcode.NewArray => Stream.ReadByte(out byte ArrType) ? new InsnNewPrimitiveArray((PrimitiveArrayType) ArrType) : throw StreamUnderread,
 			Opcode.ANewArray => new InsnNewArray(ReadClassName(Stream, Class.ConstantPool)),
 			Opcode.ArrayLength => new InsnArrayLength(),
@@ -470,7 +469,7 @@ public class CodeReader {
 		if (InternalBootstrap == null)
 			return new InsnMalformedIndy(Cindy.BootstrapMethodIndex, Callee);
 
-		return new InsnInvokeDynamic(BootstrapMethod.FromInternal(Class, InternalBootstrap), Callee);
+		return new InsnInvokeDynamic((BootstrapMethod) BootstrapMethod.FromInternal(Class, InternalBootstrap), Callee); // IMPORTANT TODO: Remove the cast and make sure INDY works with BootstrapMethodBase (unless we make it unnecessary by absolutely destroying every possible way of there being a CyclicBM on first argument level)
 	}
 
 	private static InsnInvokeInterface ReadInvokeInterface(Stream Stream, ConstantPool Pool) {
@@ -525,36 +524,18 @@ public class CodeReader {
 			Field = FieldDescriptor.FromSignature(Pool, ConFld.GetNameAndType(Pool))
 		};
 	}
-	private static Instruction ReadLdc(ushort Index, InternalClass Class, bool Wide) {
+	private static InsnPush ReadLdc(ushort Index, InternalClass Class, bool Wide) {
 		ConstantPool Pool = Class.ConstantPool;
 		ConstantInfo Ci = Pool[Index];
 		if (Ci.IsWide && !Wide)
 			throw new BadInstructionReadException($"Mismatched state: requested a non-wide LDC, but the subject constant is wide.");
+		// StackConstant Sci = StackConstant.FromConstant(Class, Ci);
+		StackConstant Sci = StackConstant.FromConstant(Class, Index);
 
-		if (Ci is ConstantDynamic Cdyn) {
-			return new InsnPushDynamic(
-				BootstrapMethod.FromInternal(Class, Cdyn.GetBootstrapMethod(Class) ?? throw new BadInstructionReadException($"Got a malformed ConstantDynamic (no BootstrapMethods attribute), recovery from this is not yet implemented.")),
-				FieldDescriptor.FromSignature(Class.ConstantPool, Cdyn.GetNameAndType(Class.ConstantPool))
-			);
-		} else if (Ci is ConstantClass Cc) {
-			return new InsnPushClass(Cc.GetName(Pool));
-		} else if (Ci is ConstantMethodHandle Cm) {
-			return new InsnPushMethodHandle(new MethodHandle(Cm.Kind, ClassMemberReference.FromConstant(Pool, Cm.GetInfo(Pool))));
-		} else if (Ci is ConstantMethodType Cmt) {
-			return new InsnPushMethodType(MethodTypeDescriptor.FromSignature(Pool, Cmt));
-		} else if (Ci is ConstantString Cs) {
-			return new InsnPushString(Cs.GetString(Pool));
-		} else if (Ci is ConstantInteger Cint)
-			return new InsnPushInteger(Cint.Value);
-		else if (Ci is ConstantFloat Cf)
-			return new InsnPushFloat(Cf.Value);
-		else if (Ci is ConstantLong Cl)
-			return new InsnPushLong(Cl.Value);
-		else if (Ci is ConstantDouble Cd)
-			return new InsnPushDouble(Cd.Value);
-		else {
-			throw new BadInstructionReadException($"Read LDC with an unacceptable constant: {Ci}");
-		}
+		if (!Wide && Sci is StackConstantDynamic Scd && Scd.IsWide)
+			throw new BadInstructionReadException($"Mismatched state: requested a non-wide LDC (Condy), but the subject constant is wide.");
+
+		return new(Sci);
 	}
 
 	public struct ManagedFieldReference {

@@ -1,2 +1,2 @@
 # Documentation scribbles
-nothing here, were you actually expecting me to document my own code? i will but not yet, just check Program.cs for now haha
+Luna uses stable sorting for inline exception handlers. That is, every well-formed TryBlock (built by using the pseudo-instructions TryBlockStart, TryBlockEnd and TryBlockCatchHandler) is stored in a flat list and the list is then sorted by the Priority property of every TryBlock (configurable in the constructor of TryBlockStart, default value is 0). TryBlocks with equal Priorities will be positioned in order of appearance, TryBlocks with higher Priorities will be positioned closer to index 0 (to the top of the exception handler table).
