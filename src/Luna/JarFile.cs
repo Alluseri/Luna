@@ -10,7 +10,7 @@ public class JarFile {
 	public Dictionary<string, InternalClass> Classes = new(); // TODO: What even is the point if LunaClass has a Name field?
 	public string? Manifest;
 
-	public JarFile(string Path) : this(File.Open(Path, FileMode.Open, FileAccess.Read)) { }
+	// public JarFile(string Path) : this(File.Open(Path, FileMode.Open, FileAccess.Read)) { } // DISPOSE WHERE HELLO??
 
 	public JarFile(FileStream Stream) {
 		using ZipArchive Backend = new(Stream);

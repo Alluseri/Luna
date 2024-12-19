@@ -1,14 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>1.0.6</Version>
+    <Authors>Alluseri</Authors>
+    <Company>lunahook.dev ltd.</Company>
+    <PackageId>Alluseri.Luna</PackageId>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <NoWarn>CS1591, CS1573, CS8618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <Compile Remove="test\**" />
+    <!--<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />-->
     <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
   </ItemGroup>
 

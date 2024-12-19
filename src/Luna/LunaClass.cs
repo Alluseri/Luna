@@ -1,3 +1,4 @@
+using Alluseri.Luna.Bytecode;
 using Alluseri.Luna.Internals;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,15 @@ public class LunaClass : IInheritanceUnit {
 		AccessFlags = Internal.AccessFlags;
 		Name = new(Internal.GetThisClassName());
 		Super = Internal.SuperClass == 0 ? null : new(Internal.GetSuperClassName()!);
+
+		foreach (ConstantClass CClass in Internal.GetInterfaces()) {
+			Interfaces.Add(CClass.GetName(Internal.ConstantPool)); // verifier will probably explode
+		}
+
+		CodeReader Cr = new(Internal);
+
+		foreach (MethodInfo Mi in Internal.Methods)
+			Methods.Add(new(Cr, Mi));
 	}
 
 	public InternalClass CreateInternal() => throw new NotImplementedException("Not implemented yet!");

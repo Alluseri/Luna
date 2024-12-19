@@ -8,7 +8,7 @@ namespace Alluseri.Luna;
 public class Method {
 	public MethodAccessFlags AccessFlags;
 	public MethodDescriptor Descriptor;
-	public LinkedList<Instruction>? Code; // CodeAttribute
+	public List<Instruction>? Code; // CodeAttribute
 	public IList<string> Throws; // ExceptionsAttribute; should we really have forced alloc here?
 	public bool Deprecated; // DeprecatedAttribute
 
@@ -16,8 +16,7 @@ public class Method {
 		AccessFlags = InternalMethod.AccessFlags;
 		Descriptor = MethodDescriptor.FromSignature(InternalMethod.GetName(Reader.Class.ConstantPool), InternalMethod.GetDescriptor(Reader.Class.ConstantPool));
 
-		List<Instruction>? o = InternalMethod.Attributes.FirstOrDefault(k => k is CodeAttribute) is CodeAttribute Ca ? Reader.Read(Ca) : null;
-		Code = o == null ? null : new(o);
+		Code = InternalMethod.Attributes.FirstOrDefault(k => k is CodeAttribute) is CodeAttribute Ca ? Reader.Read(Ca) : null;
 
 		ExceptionsAttribute? Ex = InternalMethod.Attributes.FirstOrDefault(k => k is ExceptionsAttribute) as ExceptionsAttribute;
 		if (Ex != null) { // TODO: Is this yip yap necessary or the verifier will explode anyway?

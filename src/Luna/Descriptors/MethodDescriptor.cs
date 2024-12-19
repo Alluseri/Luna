@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 namespace Alluseri.Luna;
 
+// TODO: Get rid of this please
+
 public class MethodDescriptor : Descriptor {
 	public TypeDescriptor ReturnType;
 	public string Name;
@@ -26,7 +28,7 @@ public class MethodDescriptor : Descriptor {
 		Pool.CheckoutUTF8(Term)
 	));
 
-	// DESIGN: Rename FromSignature to something more sensible - signatures are managed, descriptors are internal.
+	// DESIGN: Rename FromSignature to something more reasonable - signatures are managed, descriptors are internal.
 
 	public static MethodDescriptor FromSignature(string Name, string Signature) {
 		ReadOnlySpan<char> R = Signature;
@@ -41,4 +43,7 @@ public class MethodDescriptor : Descriptor {
 		return new(Name, Arguments, ReturnType);
 	}
 	public static MethodDescriptor FromSignature(ConstantPool Pool, ConstantNameAndType Signature) => FromSignature(Signature.GetName(Pool), Signature.GetDescriptor(Pool));
+
+	public override int GetHashCode() => FullDescriptor.GetHashCode();
+	public override bool Equals(object? Other) => Other is MethodDescriptor Desc && Desc.FullDescriptor == FullDescriptor;
 }

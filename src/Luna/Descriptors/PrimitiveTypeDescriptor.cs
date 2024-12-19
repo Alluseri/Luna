@@ -5,8 +5,6 @@ namespace Alluseri.Luna;
 public class PrimitiveTypeDescriptor : TypeDescriptor {
 	public readonly PrimitiveType Type;
 
-	// TODO: PrimitiveType.Descriptor() extension method
-
 	public PrimitiveTypeDescriptor(PrimitiveType Type) : base(Type switch {
 		PrimitiveType.Byte => "B",
 		PrimitiveType.Char => "C",
@@ -38,6 +36,11 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 	}
 
 	public static implicit operator PrimitiveTypeDescriptor(PrimitiveType Type) => new(Type);
+}
+
+public static class PrimitiveTypeExtensions {
+	// TODO: Better name:
+	public static bool IsTheSameAs(this PrimitiveType Type, Descriptor Descriptor) => Descriptor is PrimitiveTypeDescriptor PTD && PTD.Type == Type;
 }
 
 public enum PrimitiveType {

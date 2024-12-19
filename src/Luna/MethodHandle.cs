@@ -3,8 +3,8 @@ using Alluseri.Luna.Internals;
 namespace Alluseri.Luna;
 
 public class MethodHandle(MethodHandleReferenceKind Kind, ClassMemberReference Reference) {
-	MethodHandleReferenceKind Kind = Kind;
-	ClassMemberReference Reference = Reference;
+	public MethodHandleReferenceKind Kind = Kind;
+	public ClassMemberReference Reference = Reference;
 
 	public ushort Checkout(ConstantPool Pool) => Pool.Checkout(
 		new ConstantMethodHandle(

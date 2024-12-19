@@ -7,6 +7,7 @@ namespace Alluseri.Luna;
 
 public class CompoundTypeDescriptor : Descriptor {
 	public IList<TypeDescriptor> Descriptors;
+	public int Count => Descriptors.Count;
 
 	public CompoundTypeDescriptor(params TypeDescriptor[] Descriptors) {
 		this.Descriptors = new List<TypeDescriptor>(Descriptors);
