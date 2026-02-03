@@ -22,5 +22,5 @@ public class InsnPutStatic : Instruction {
 		Stream.Write(Field.CheckoutFieldRef(Builder.Pool, ClassName));
 	}
 
-	public override string ToString() => $"putstatic {ClassName}.{Field.FullDescriptor}";
+	public override string ToString() => $"putstatic {ClassName}.{Field.FullDescriptor}"; // TODO: WRONG ORDER!!!!!!!!!!!!!!!!! BAD TOSTRING!11EW23
 }

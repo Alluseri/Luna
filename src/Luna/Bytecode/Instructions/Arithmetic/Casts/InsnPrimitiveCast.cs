@@ -9,6 +9,8 @@ public class InsnPrimitiveCast : Instruction {
 	// I'm not lazy, it just makes the code really ugly.
 	// I might look into changing this at one point.
 
+	// Looking back at this, I'm probably actually just lazy.
+
 	public readonly ArithmeticOperand From;
 	public readonly PrimitiveCastResult To;
 	private readonly Opcode Opcode;

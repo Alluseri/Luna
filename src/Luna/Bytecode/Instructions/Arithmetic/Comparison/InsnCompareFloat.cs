@@ -5,7 +5,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnCompareFloat : Instruction {
-	WhenNaN WhenNaN;
+	public readonly WhenNaN WhenNaN;
 
 	public InsnCompareFloat(WhenNaN WhenNaN) : base(1) {
 		if (WhenNaN > WhenNaN.Greater)

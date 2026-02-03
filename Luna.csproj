@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.6</Version>
+    <Version>1.0.10</Version>
     <Authors>Alluseri</Authors>
     <Company>lunahook.dev ltd.</Company>
     <PackageId>Alluseri.Luna</PackageId>
@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\"/>
-    <Compile Remove="test\**" />
-    <!--<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />-->
+    <!--<Compile Remove="test\**" />-->
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
     <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
   </ItemGroup>
 

@@ -68,6 +68,7 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 				}
 				break;
 				case LineNumber Ln:
+				// TODO: Do we even need this if we have the length check above?
 				if (Ln.Location <= ushort.MaxValue) // We can silently ignore this without breaking output code (such a line number will never be reached in a stack trace)
 					LineNumbers.Add(new LineEntry((ushort) Ln.Location, Ln.Line));
 				break;
@@ -161,7 +162,7 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 
 public class CodeBuilderConfig {
 	public bool ComplexGotoResolution = false; // performance hit: very
-	public bool RepairLabelIdentities = false; // performance hit: minor
+											   // public bool RepairLabelIdentities = false; // performance hit: minor
 	public bool IgnoreMalformedTryBlocks = false; // performance hit: none
 	public ComputationLevel ComputationLevel = ComputationLevel.StackFrames; // performance hit: varies
 

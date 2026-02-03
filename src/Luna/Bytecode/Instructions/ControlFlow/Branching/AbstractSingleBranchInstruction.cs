@@ -8,7 +8,7 @@ namespace Alluseri.Luna.Bytecode;
 
 public abstract class AbstractSingleBranchInstruction : Instruction {
 	public abstract bool Conditional { get; } // Will be useful for the SMT builder
-	internal int TargetLocation; // This is only used by the code reader, don't worry about its existence
+	internal int TargetLocation; // This is only used by the code reader, don't worry about its existence; DESIGN: Is this a good idea? Looks fucked up to me
 	public Label Target;
 
 	public AbstractSingleBranchInstruction(Label Target) {

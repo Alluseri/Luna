@@ -6,7 +6,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnMultiply : Instruction {
-	ArithmeticOperand Operand;
+	public readonly ArithmeticOperand Operand;
 
 	public InsnMultiply(ArithmeticOperand Operand) : base(1) {
 		if (Operand > ArithmeticOperand.Double)

@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Alluseri.Luna.Bytecode;
 
-public class InsnInvokeStatic : AbstractInsnInvoke {
+public class InsnInvokeStatic : AbstractInvokeInstruction {
 	public InsnInvokeStatic(ReferenceTypeDescriptor ClassDescriptor, MethodDescriptor Method, bool Interface = false) : base(ClassDescriptor, Method, Interface) { }
 	public InsnInvokeStatic(string ClassName, MethodDescriptor Method, bool Interface = false) : base(ClassName, Method, Interface) { }
 	public InsnInvokeStatic(CodeReader.ManagedMethodReference Mref) : base(Mref) { }

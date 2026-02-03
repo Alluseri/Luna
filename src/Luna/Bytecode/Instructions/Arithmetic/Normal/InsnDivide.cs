@@ -6,7 +6,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnDivide : Instruction {
-	ArithmeticOperand Operand;
+	public readonly ArithmeticOperand Operand;
 
 	public InsnDivide(ArithmeticOperand Operand) : base(1) {
 		if (Operand > ArithmeticOperand.Double)

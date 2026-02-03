@@ -7,15 +7,14 @@ namespace Alluseri.Luna;
 
 // TODO: Get rid of this please
 
-public class MethodDescriptor : Descriptor {
+public class MethodDescriptor : NamedDescriptor {
 	public TypeDescriptor ReturnType;
-	public string Name;
 	public CompoundTypeDescriptor Arguments;
 
 	public override string Term => $"({Arguments}){ReturnType}";
-	public string FullDescriptor => $"{Name}({Arguments}){ReturnType}"; // TODO: Reconsider the name after Term is renamed to something more proper
+	public override string FullDescriptor => $"{Name}({Arguments}){ReturnType}"; // TODO: Reconsider the name after Term is renamed to something more proper
 
-	public MethodDescriptor(TypeDescriptor ReturnType, string Name, CompoundTypeDescriptor Arguments) { // Java-style
+	public MethodDescriptor(TypeDescriptor ReturnType, string Name, CompoundTypeDescriptor Arguments) : base(Name) { // Java-style
 		this.ReturnType = ReturnType;
 		this.Name = Name;
 		this.Arguments = Arguments;
@@ -43,7 +42,4 @@ public class MethodDescriptor : Descriptor {
 		return new(Name, Arguments, ReturnType);
 	}
 	public static MethodDescriptor FromSignature(ConstantPool Pool, ConstantNameAndType Signature) => FromSignature(Signature.GetName(Pool), Signature.GetDescriptor(Pool));
-
-	public override int GetHashCode() => FullDescriptor.GetHashCode();
-	public override bool Equals(object? Other) => Other is MethodDescriptor Desc && Desc.FullDescriptor == FullDescriptor;
 }

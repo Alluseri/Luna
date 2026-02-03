@@ -25,10 +25,10 @@ public abstract class ClassMemberReference {
 	};
 }
 
-public abstract class ClassMemberReference<D>(ReferenceTypeDescriptor ClassDescriptor, D Descriptor) : ClassMemberReference(ClassDescriptor) where D : Descriptor {
+public abstract class ClassMemberReference<D>(ReferenceTypeDescriptor ClassDescriptor, D Descriptor) : ClassMemberReference(ClassDescriptor) where D : NamedDescriptor {
 	public D Descriptor = Descriptor;
 
 	public ClassMemberReference(string ClassName, D Descriptor) : this(ReferenceTypeDescriptor.ParseSymbolic(ClassName), Descriptor) { }
 
-	public override string ToString() => $"{ClassDescriptor}.{Descriptor}";
+	public override string ToString() => $"{ClassDescriptor}.{Descriptor.FullDescriptor}";
 }

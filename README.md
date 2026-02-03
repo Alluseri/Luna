@@ -6,9 +6,7 @@ Massive thanks to [@jumanji144](https://github.com/jumanji144) for providing his
 ## This thing is unfinished, pls dont use
 Like actually even if you're thinking about it please don't.
 
-Just lookup all the `// DESIGN:` comments and you'll quickly figure out how much stuff is subject to change sooner or later.
-
-That being said, the `Internals` namespace is fully done and production-ready, so you may use that. I don't guarantee **that** won't change either, though. It's just way less likely.
+Just lookup all the `// DESIGN:` and `// TODO:` comments and you'll quickly figure out how much stuff is subject to change sooner or later.
 
 You have to build this project from source so like just dont pls ok?
 

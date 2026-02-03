@@ -5,7 +5,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnXor : Instruction {
-	BitwiseOperand Operand;
+	public readonly BitwiseOperand Operand;
 
 	public InsnXor(BitwiseOperand Operand) : base(1) {
 		if (Operand > BitwiseOperand.Long)

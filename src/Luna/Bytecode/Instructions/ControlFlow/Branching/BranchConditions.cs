@@ -1,7 +1,7 @@
 namespace Alluseri.Luna.Bytecode;
 
 public enum BranchCondition : uint {
-	Equal, NotEqual, LessThan, GreaterEqual, GreatherThan, LessEqual
+	Equal, NotEqual, LessThan, GreaterEqual, GreaterThan, LessEqual
 }
 
 public enum ReferenceBranchCondition : uint {
@@ -14,7 +14,7 @@ internal static class BranchConditionExtensions {
 		BranchCondition.NotEqual => "!=",
 		BranchCondition.LessThan => "<",
 		BranchCondition.GreaterEqual => ">=",
-		BranchCondition.GreatherThan => ">",
+		BranchCondition.GreaterThan => ">",
 		BranchCondition.LessEqual => "<=",
 		_ => "?"
 	};

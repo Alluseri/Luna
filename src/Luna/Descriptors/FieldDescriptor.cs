@@ -5,14 +5,13 @@ using System.Collections.Generic;
 
 namespace Alluseri.Luna;
 
-public class FieldDescriptor : Descriptor {
+public class FieldDescriptor : NamedDescriptor {
 	public TypeDescriptor FieldType;
-	public string Name;
 
 	public override string Term => FieldType.Term;
-	public string FullDescriptor => $"{FieldType} {Name}"; // TODO: Reconsider the name after Term is renamed to something more proper
+	public override string FullDescriptor => $"{FieldType} {Name}"; // TODO: Reconsider the name after Term is renamed to something more proper
 
-	public FieldDescriptor(TypeDescriptor FieldType, string Name) { // Java-style
+	public FieldDescriptor(TypeDescriptor FieldType, string Name) : base(Name) { // Java-style
 		this.FieldType = FieldType;
 		this.Name = Name;
 	}

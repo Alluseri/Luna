@@ -5,7 +5,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnNewPrimitiveArray : Instruction {
-	public PrimitiveArrayType ArrayType;
+	public readonly PrimitiveArrayType ArrayType;
 
 	public InsnNewPrimitiveArray(PrimitiveArrayType ArrayType) : base(2) {
 		this.ArrayType = ArrayType;

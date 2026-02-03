@@ -5,7 +5,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 public class InsnUnsignedShiftRight : Instruction {
-	BitwiseOperand Operand;
+	public readonly BitwiseOperand Operand;
 
 	public InsnUnsignedShiftRight(BitwiseOperand Operand) : base(1) {
 		if (Operand > BitwiseOperand.Long)

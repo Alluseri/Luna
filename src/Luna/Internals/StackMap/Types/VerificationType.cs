@@ -39,6 +39,6 @@ public abstract class VerificationType : ISizeable {
 	}
 }
 
-public enum VerificationTag : byte {
+public enum VerificationTag : byte { // TODO: Explicit enum values would be good I reckon
 	Top, Integer, Float, Double, Long, Null, UninitializedThis, Object, Uninitialized
 }

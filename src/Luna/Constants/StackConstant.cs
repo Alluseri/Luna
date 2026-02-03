@@ -5,6 +5,8 @@ using System.IO;
 
 namespace Alluseri.Luna;
 
+// TODO: I am severely unhappy with this entire namespace. Please kill it with fire.
+
 public abstract class StackConstant {
 	protected static int GetLdcSize(ushort PoolIndex) => PoolIndex > byte.MaxValue ? 3 : 2; // You are never expected to call this if you're already a WIDE opcode.
 
