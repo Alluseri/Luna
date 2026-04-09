@@ -26,7 +26,7 @@ public class LunaClass : IInheritanceUnit {
 		Super = Internal.SuperClass == 0 ? null : new(Internal.GetSuperClassName()!);
 
 		foreach (ConstantClass CClass in Internal.GetInterfaces()) {
-			Interfaces.Add(CClass.GetName(Internal.ConstantPool)); // verifier will probably explode
+			Interfaces.Add(CClass.GetName(Internal.ConstantPool));
 		}
 
 		CodeReader Cr = new(Internal);
