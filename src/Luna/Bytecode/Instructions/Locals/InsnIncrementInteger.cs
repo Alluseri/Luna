@@ -6,11 +6,20 @@ namespace Alluseri.Luna.Bytecode;
 
 public class InsnIncrementInteger : Instruction {
 	private ushort _Slot;
+	private short _Addend;
+
 	public ushort Slot {
 		get => _Slot;
-		set => Size = (_Slot = value) <= byte.MaxValue ? 3 : 5;
+		set => Size = GetSize(_Slot = value, Addend);
 	}
-	public short Addend;
+	public short Addend {
+		get => _Addend;
+		set => Size = GetSize(Slot, _Addend = value);
+	}
+
+	private static int GetSize(ushort Slot, short Addend) {
+		return (Slot > byte.MaxValue || Addend > byte.MaxValue) ? 6 : 3;
+	}
 
 	public InsnIncrementInteger(ushort Slot, sbyte Addend) {
 		this.Slot = Slot;
@@ -26,9 +35,9 @@ public class InsnIncrementInteger : Instruction {
 			case 3:
 			Stream.Write(Opcode.IInc);
 			Stream.Write((byte) Slot);
-			Stream.Write(Addend);
+			Stream.Write((byte) Addend);
 			break;
-			case 5:
+			case 6:
 			default:
 			Stream.Write(Opcode.Wide);
 			Stream.Write(Opcode.IInc);

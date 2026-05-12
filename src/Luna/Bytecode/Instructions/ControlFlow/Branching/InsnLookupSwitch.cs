@@ -30,13 +30,15 @@ public class InsnLookupSwitch : Instruction {
 		this.Cases = Cases;
 	}
 
+	private static int GetPadding(int Address) => (4 - ((Address + 1) % 4)) % 4; // idk how the fuck I cooked this but I did
+
 	internal override void Checkout(CodeBuilder Builder, int Address) {
-		Size = 1 + ((4 - ((Address + 1) % 4)) % 4) + 4 + 4 + Cases.Count * (4 + 4);
+		Size = 1 + GetPadding(Address) + 4 + 4 + Cases.Count * (4 + 4);
 	}
 
 	internal override void Write(Stream Stream, CodeBuilder Class, int Address) {
 		Stream.Write(Opcode.LookupSwitch);
-		Stream.Write(stackalloc byte[Address % 4]);
+		Stream.Write(stackalloc byte[GetPadding(Address)]);
 		Stream.Write(DefaultCase.Location - Address);
 		Stream.Write(Cases.Count);
 		foreach (KeyValuePair<int, Label> Case in Cases) {

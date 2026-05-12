@@ -10,12 +10,10 @@ public class InsnNewArray : Instruction {
 		set => TypeDescriptor = ReferenceTypeDescriptor.ParseSymbolic(value);
 	}
 
-	public InsnNewArray(ReferenceTypeDescriptor TypeDescriptor) {
+	public InsnNewArray(ReferenceTypeDescriptor TypeDescriptor) : base(3) {
 		this.TypeDescriptor = TypeDescriptor;
 	}
-	public InsnNewArray(string TypeName) {
-		this.TypeDescriptor = ReferenceTypeDescriptor.ParseSymbolic(TypeName);
-	}
+	public InsnNewArray(string TypeName) : this(ReferenceTypeDescriptor.ParseSymbolic(TypeName)) { }
 
 	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		Stream.Write(Opcode.ANewArray);

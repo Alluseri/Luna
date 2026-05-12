@@ -12,14 +12,14 @@ public class InsnNewMultiArray : Instruction {
 	}
 	public byte Dimensions;
 
-	public InsnNewMultiArray(ReferenceTypeDescriptor TypeDescriptor, byte Dimensions) {
+	public InsnNewMultiArray(ReferenceTypeDescriptor TypeDescriptor, byte Dimensions) : base(4) {
 		if (Dimensions == 0)
 			throw new ArgumentOutOfRangeException(nameof(Dimensions));
 
 		this.TypeDescriptor = TypeDescriptor;
 		this.Dimensions = Dimensions;
 	}
-	public InsnNewMultiArray(string TypeName, byte Dimensions) {
+	public InsnNewMultiArray(string TypeName, byte Dimensions) : base(4) {
 		if (Dimensions == 0)
 			throw new ArgumentOutOfRangeException(nameof(Dimensions));
 

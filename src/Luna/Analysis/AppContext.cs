@@ -12,9 +12,9 @@ public class AppContext {
 	// Analyze arguments to calls, local and field stores to determine when O is passed into S
 
 	public void AnalyzeInheritanceFirstPass(JarFile Jf) {
-		foreach (LunaClass Lc in Jf.Classes.Values) {
+		/*foreach (LunaClass Lc in Jf.Classes.Values) {
 			InheritanceData[Lc.Name] = Lc;
-		}
+		}*/
 	}
 
 

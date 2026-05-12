@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>1.0.10</Version>
+    <Version>1.0.11</Version>
     <Authors>Alluseri</Authors>
     <Company>lunahook.dev ltd.</Company>
     <PackageId>Alluseri.Luna</PackageId>

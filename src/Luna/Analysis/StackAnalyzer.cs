@@ -13,7 +13,7 @@ public class StackAnalyzer {
 
 	List<Edge> Edges = new();
 
-	public void Analyze(IList<Instruction> Instructions) {
+	/*public void Analyze(IList<Instruction> Instructions) {
 		List<VerificationType> Stack = new();
 		List<VerificationType> Locals = new();
 
@@ -29,7 +29,7 @@ public class StackAnalyzer {
 
 	public Edge GetEdge(PseudoInstruction Label) {
 		return Edges.Find(E => E.LabelsAtEdge.Contains(Label)) ?? throw new MalformedBytecodeException($"Label {Label} doesn't exist in provided bytecode!");
-	}
+	}*/
 
 	class Edge {
 		public HashSet<PseudoInstruction> LabelsAtEdge; // This can be both labels and try/catch blocks

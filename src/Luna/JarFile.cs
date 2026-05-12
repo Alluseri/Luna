@@ -7,7 +7,7 @@ using System.IO.Compression;
 namespace Alluseri.Luna;
 
 public class JarFile {
-	public Dictionary<string, LunaClass> Classes = new(); // TODO: What even is the point if LunaClass has a Name field?
+	public Dictionary<string, InternalClass> Classes = new(); // TODO: What even is the point if LunaClass has a Name field?
 	public string? Manifest;
 
 	// public JarFile(string Path) : this(File.Open(Path, FileMode.Open, FileAccess.Read)) { } // DISPOSE WHERE HELLO??
@@ -27,8 +27,8 @@ public class JarFile {
 						using (MemoryStream CopyStream = new(checked((int) Entry.Length))) { // Can't represent over int? Too bad. You could do it normally, but DeflateStream is broken. ReadExactly is broken. Hell, everything is broken.
 							EntryDeflate.CopyTo(CopyStream);
 							CopyStream.Position = 0;
-							Classes[Entry.FullName] = new LunaClass(new InternalClass(CopyStream));
-							// Classes[Entry.FullName] = new InternalClass(CopyStream);
+							// Classes[Entry.FullName] = new LunaClass(new InternalClass(CopyStream));
+							Classes[Entry.FullName] = new InternalClass(CopyStream);
 						}
 					}
 				} catch {

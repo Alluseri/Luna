@@ -96,6 +96,8 @@ public class CodeBuilder { // Perfect use case: One CodeBuilder per Class
 				foreach (Instruction Insn in InstructionList) {
 					Insn.Write(Writer, this, Address);
 					Address += Insn.Size;
+					if (Address != Writer.Position)
+						Console.WriteLine($"After writing {Insn.GetType().Name} ('{Insn}'), address is {Address} but real position is {Writer.Position}!");
 				}
 			}
 		}
