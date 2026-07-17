@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Alluseri.Luna.Bytecode;
 
-// TODO: Rewrite to use Checkout(), or maybe not, lol.
+// TODO: Rewrite to use Checkout(), or maybe not, lol. This shouldn't matter because the setter of Slot always sets the size, so no need to update it "one more time" in post
 
 public abstract class AbstractLocalsInstruction : Instruction {
 	private ushort _Slot;
@@ -26,18 +26,18 @@ public abstract class AbstractLocalsInstruction : Instruction {
 	internal override void Write(Stream Stream, CodeBuilder Builder, int Address) {
 		switch (Size) {
 			case 1:
-			Stream.Write(SmallOpcode, Slot);
-			break;
+				Stream.Write(SmallOpcode, Slot);
+				break;
 			case 2:
-			Stream.Write(LargeOpcode);
-			Stream.Write((byte) Slot);
-			break;
+				Stream.Write(LargeOpcode);
+				Stream.Write((byte) Slot);
+				break;
 			case 3:
 			default:
-			Stream.Write(Opcode.Wide);
-			Stream.Write(LargeOpcode);
-			Stream.Write(Slot);
-			break;
+				Stream.Write(Opcode.Wide);
+				Stream.Write(LargeOpcode);
+				Stream.Write(Slot);
+				break;
 		}
 	}
 }

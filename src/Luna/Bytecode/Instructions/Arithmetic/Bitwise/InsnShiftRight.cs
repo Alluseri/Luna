@@ -8,8 +8,7 @@ public class InsnShiftRight : Instruction {
 	public readonly BitwiseOperand Operand;
 
 	public InsnShiftRight(BitwiseOperand Operand) : base(1) {
-		if (Operand > BitwiseOperand.Long)
-			throw new ArgumentOutOfRangeException(nameof(Operand), "Illegal bitwise operand for this operation.");
+		Operand.Validate();
 
 		this.Operand = Operand;
 	}

@@ -19,7 +19,7 @@ public class InsnPrimitiveCast : Instruction {
 		Opcode = GetOpcode(this.From = From, this.To = To) ?? throw new ArgumentException($"There is no opcode that can cast from {From} to {To}. Try ${nameof(MacroPrimitiveCast)} instead.");
 	}
 
-	// This is public for the purpose of self-checking, if necessary(writers should opt into using MacroPrimitiveCast instead):
+	// This is public for the purpose of self-checking, if necessary (writers should opt into using MacroPrimitiveCast instead):
 	public static Opcode? GetOpcode(ArithmeticOperand From, PrimitiveCastResult To) {
 		if ((uint) From == (uint) To || (From != ArithmeticOperand.Integer && To >= PrimitiveCastResult.Byte))
 			return null;

@@ -4,6 +4,7 @@ using System.IO;
 
 namespace Alluseri.Luna.Bytecode;
 
+// TODO: How do we resolve this to wide or not wide if its own size decides the size of all future instructions in CodeWriter?
 public class InsnGoto : AbstractSingleBranchInstruction {
 	public override bool Conditional => false;
 

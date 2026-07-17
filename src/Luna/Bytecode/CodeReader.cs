@@ -136,36 +136,12 @@ public class CodeReader {
 			#endregion
 
 			#region Locals (Load)
-			Opcode.ILoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadInteger(LoadSlot) : throw StreamUnderread,
-			Opcode.LLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadLong(LoadSlot) : throw StreamUnderread,
-			Opcode.FLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadFloat(LoadSlot) : throw StreamUnderread,
-			Opcode.DLoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadDouble(LoadSlot) : throw StreamUnderread,
-			Opcode.ALoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadReference(LoadSlot) : throw StreamUnderread,
-
-			Opcode.ILoad_0 => new InsnLoadInteger(0),
-			Opcode.ILoad_1 => new InsnLoadInteger(1),
-			Opcode.ILoad_2 => new InsnLoadInteger(2),
-			Opcode.ILoad_3 => new InsnLoadInteger(3),
-
-			Opcode.LLoad_0 => new InsnLoadLong(0),
-			Opcode.LLoad_1 => new InsnLoadLong(1),
-			Opcode.LLoad_2 => new InsnLoadLong(2),
-			Opcode.LLoad_3 => new InsnLoadLong(3),
-
-			Opcode.FLoad_0 => new InsnLoadFloat(0),
-			Opcode.FLoad_1 => new InsnLoadFloat(1),
-			Opcode.FLoad_2 => new InsnLoadFloat(2),
-			Opcode.FLoad_3 => new InsnLoadFloat(3),
-
-			Opcode.DLoad_0 => new InsnLoadDouble(0),
-			Opcode.DLoad_1 => new InsnLoadDouble(1),
-			Opcode.DLoad_2 => new InsnLoadDouble(2),
-			Opcode.DLoad_3 => new InsnLoadDouble(3),
-
-			Opcode.ALoad_0 => new InsnLoadReference(0),
-			Opcode.ALoad_1 => new InsnLoadReference(1),
-			Opcode.ALoad_2 => new InsnLoadReference(2),
-			Opcode.ALoad_3 => new InsnLoadReference(3),
+			Opcode.ILoad or Opcode.LLoad or Opcode.FLoad or Opcode.DLoad or Opcode.ALoad => Stream.ReadByte(out byte LoadSlot) ? new InsnLoadLocal(GetSequentialKind((Opcode) Op, Opcode.ILoad), LoadSlot) : throw StreamUnderread,
+			Opcode.ILoad_0 or Opcode.ILoad_1 or Opcode.ILoad_2 or Opcode.ILoad_3 or
+			Opcode.LLoad_0 or Opcode.LLoad_1 or Opcode.LLoad_2 or Opcode.LLoad_3 or
+			Opcode.FLoad_0 or Opcode.FLoad_1 or Opcode.FLoad_2 or Opcode.FLoad_3 or
+			Opcode.DLoad_0 or Opcode.DLoad_1 or Opcode.DLoad_2 or Opcode.DLoad_3 or
+			Opcode.ALoad_0 or Opcode.ALoad_1 or Opcode.ALoad_2 or Opcode.ALoad_3 => ReadCompactLoadLocal((Opcode) Op),
 			#endregion
 
 			#region Arrays (Load)
@@ -180,36 +156,12 @@ public class CodeReader {
 			#endregion
 
 			#region Locals (Store)
-			Opcode.IStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreInteger(StoreSlot) : throw StreamUnderread,
-			Opcode.LStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreLong(StoreSlot) : throw StreamUnderread,
-			Opcode.FStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreFloat(StoreSlot) : throw StreamUnderread,
-			Opcode.DStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreDouble(StoreSlot) : throw StreamUnderread,
-			Opcode.AStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreReference(StoreSlot) : throw StreamUnderread,
-
-			Opcode.IStore_0 => new InsnStoreInteger(0),
-			Opcode.IStore_1 => new InsnStoreInteger(1),
-			Opcode.IStore_2 => new InsnStoreInteger(2),
-			Opcode.IStore_3 => new InsnStoreInteger(3),
-
-			Opcode.LStore_0 => new InsnStoreLong(0),
-			Opcode.LStore_1 => new InsnStoreLong(1),
-			Opcode.LStore_2 => new InsnStoreLong(2),
-			Opcode.LStore_3 => new InsnStoreLong(3),
-
-			Opcode.FStore_0 => new InsnStoreFloat(0),
-			Opcode.FStore_1 => new InsnStoreFloat(1),
-			Opcode.FStore_2 => new InsnStoreFloat(2),
-			Opcode.FStore_3 => new InsnStoreFloat(3),
-
-			Opcode.DStore_0 => new InsnStoreDouble(0),
-			Opcode.DStore_1 => new InsnStoreDouble(1),
-			Opcode.DStore_2 => new InsnStoreDouble(2),
-			Opcode.DStore_3 => new InsnStoreDouble(3),
-
-			Opcode.AStore_0 => new InsnStoreReference(0),
-			Opcode.AStore_1 => new InsnStoreReference(1),
-			Opcode.AStore_2 => new InsnStoreReference(2),
-			Opcode.AStore_3 => new InsnStoreReference(3),
+			Opcode.IStore or Opcode.LStore or Opcode.FStore or Opcode.DStore or Opcode.AStore => Stream.ReadByte(out byte StoreSlot) ? new InsnStoreLocal(GetSequentialKind((Opcode) Op, Opcode.IStore), StoreSlot) : throw StreamUnderread,
+			Opcode.IStore_0 or Opcode.IStore_1 or Opcode.IStore_2 or Opcode.IStore_3 or
+			Opcode.LStore_0 or Opcode.LStore_1 or Opcode.LStore_2 or Opcode.LStore_3 or
+			Opcode.FStore_0 or Opcode.FStore_1 or Opcode.FStore_2 or Opcode.FStore_3 or
+			Opcode.DStore_0 or Opcode.DStore_1 or Opcode.DStore_2 or Opcode.DStore_3 or
+			Opcode.AStore_0 or Opcode.AStore_1 or Opcode.AStore_2 or Opcode.AStore_3 => ReadCompactStoreLocal((Opcode) Op),
 			#endregion
 
 			#region Arrays (Store)
@@ -341,11 +293,7 @@ public class CodeReader {
 			Opcode.TableSwitch => ReadTableSwitch(Stream, Address),
 			Opcode.LookupSwitch => ReadLookupSwitch(Stream, Address),
 
-			Opcode.IReturn => new InsnReturnInteger(),
-			Opcode.LReturn => new InsnReturnLong(),
-			Opcode.FReturn => new InsnReturnFloat(),
-			Opcode.DReturn => new InsnReturnDouble(),
-			Opcode.AReturn => new InsnReturnRef(),
+			Opcode.IReturn or Opcode.LReturn or Opcode.FReturn or Opcode.DReturn or Opcode.AReturn => new InsnReturn(GetSequentialKind((Opcode) Op, Opcode.IReturn)),
 			Opcode.Return => new InsnReturn(),
 			#endregion
 
@@ -374,21 +322,7 @@ public class CodeReader {
 
 			Opcode.MonitorEnter => new InsnMonitorEnter(),
 			Opcode.MonitorExit => new InsnMonitorExit(),
-			Opcode.Wide => (Opcode) Stream.ReadByte() switch {
-				Opcode.ILoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadInteger(LoadSlot) : throw StreamUnderread,
-				Opcode.LLoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadLong(LoadSlot) : throw StreamUnderread,
-				Opcode.FLoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadFloat(LoadSlot) : throw StreamUnderread,
-				Opcode.DLoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadDouble(LoadSlot) : throw StreamUnderread,
-				Opcode.ALoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadReference(LoadSlot) : throw StreamUnderread,
-				Opcode.IStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreInteger(StoreSlot) : throw StreamUnderread,
-				Opcode.LStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreLong(StoreSlot) : throw StreamUnderread,
-				Opcode.FStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreFloat(StoreSlot) : throw StreamUnderread,
-				Opcode.DStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreDouble(StoreSlot) : throw StreamUnderread,
-				Opcode.AStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreReference(StoreSlot) : throw StreamUnderread,
-				Opcode.IInc => Stream.ReadUShort(out ushort LocalIndex) && Stream.ReadShort(out short Increment) ? new InsnIncrementInteger(LocalIndex, Increment) : throw StreamUnderread,
-				Opcode.LegacyRet => throw new NotSupportedException("The 'wide ret' instruction is not supported."),
-				_ => throw new BadInstructionReadException("Invalid opcode received for Wide.")
-			},
+			Opcode.Wide => ReadWide(Stream),
 			Opcode.MultiANewArray => new InsnNewMultiArray(ReadClassName(Stream, Class.ConstantPool), Stream.ReadByteNullable() ?? throw StreamUnderread), // DESIGN: Technically, we could go into ctor and throw due to dimension check.
 
 			Opcode.IfNull => Stream.ReadShort(out short Offset) ? new InsnIfNullBranch(Address, Offset) : throw StreamUnderread,
@@ -399,6 +333,33 @@ public class CodeReader {
 			_ => throw new BadInstructionReadException($"Unknown opcode reached: {(Opcode) Op}")
 		};
 	}
+
+	private static Instruction ReadWide(Stream Stream) {
+		if (!Stream.ReadByte(out byte Op))
+			throw StreamUnderread;
+
+		return (Opcode) Op switch {
+			Opcode.ILoad or Opcode.LLoad or Opcode.FLoad or Opcode.DLoad or Opcode.ALoad => Stream.ReadUShort(out ushort LoadSlot) ? new InsnLoadLocal(GetSequentialKind((Opcode) Op, Opcode.ILoad), LoadSlot) : throw StreamUnderread,
+			Opcode.IStore or Opcode.LStore or Opcode.FStore or Opcode.DStore or Opcode.AStore => Stream.ReadUShort(out ushort StoreSlot) ? new InsnStoreLocal(GetSequentialKind((Opcode) Op, Opcode.IStore), StoreSlot) : throw StreamUnderread,
+			Opcode.IInc => Stream.ReadUShort(out ushort LocalIndex) && Stream.ReadShort(out short Increment) ? new InsnIncrementInteger(LocalIndex, Increment) : throw StreamUnderread,
+			Opcode.LegacyRet => throw new NotSupportedException("The 'wide ret' instruction is not supported."),
+			_ => throw new BadInstructionReadException("Invalid opcode received for Wide.")
+		};
+	}
+
+	private static InsnLoadLocal ReadCompactLoadLocal(Opcode Op) {
+		uint Offset = (uint) Op - (uint) Opcode.ILoad_0;
+		return new(GetCompactKind(Offset), GetCompactSlot(Offset));
+	}
+
+	private static InsnStoreLocal ReadCompactStoreLocal(Opcode Op) {
+		uint Offset = (uint) Op - (uint) Opcode.IStore_0;
+		return new(GetCompactKind(Offset), GetCompactSlot(Offset));
+	}
+
+	private static ValueKind GetSequentialKind(Opcode Op, Opcode BaseOpcode) => (ValueKind) ((uint) Op - (uint) BaseOpcode);
+	private static ValueKind GetCompactKind(uint Offset) => (ValueKind) (Offset / 4);
+	private static ushort GetCompactSlot(uint Offset) => (ushort) (Offset % 4);
 
 	private static InsnLookupSwitch ReadLookupSwitch(Stream Stream, int Address) {
 		int Alignment = (4 - ((Address + 1) % 4)) % 4;
@@ -425,7 +386,7 @@ public class CodeReader {
 	}
 
 	private static InsnTableSwitch ReadTableSwitch(Stream Stream, int Address) {
-		int Alignment = (4 - ((Address + 1) % 4)) % 4;
+		int Alignment = (4 - ((Address + 1) % 4)) % 4; // God, what the fuck did I cook?
 
 		if (Stream.CanSeek)
 			Stream.Seek(Alignment, SeekOrigin.Current);
@@ -437,7 +398,7 @@ public class CodeReader {
 		int MaxValue = Stream.ReadInt();
 
 		if (MinValue > MaxValue)
-			throw new BadInstructionReadException("Min value for TableSwitch must not be greater than the max value.");
+			throw new BadInstructionReadException("Min. value for TableSwitch must not be greater than the max value.");
 
 		int OffsetCount = MaxValue - MinValue + 1;
 		List<int> Targets = new(OffsetCount);

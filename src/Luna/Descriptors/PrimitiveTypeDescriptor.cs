@@ -1,3 +1,4 @@
+using Alluseri.Luna.Internals;
 using System;
 
 namespace Alluseri.Luna;
@@ -39,8 +40,21 @@ public class PrimitiveTypeDescriptor : TypeDescriptor {
 }
 
 public static class PrimitiveTypeExtensions {
-	// TODO: Better name:
+	// TODO: Better names for all this shit
+	// TODO: This doesn't look clean at all. Something is wrong with those methods.
+	// Who even needs IsTheSameAs? Wtf was I drinking when making this
 	public static bool IsTheSameAs(this PrimitiveType Type, Descriptor Descriptor) => Descriptor is PrimitiveTypeDescriptor PTD && PTD.Type == Type;
+	public static VerificationType ToVerificationType(this PrimitiveType Type) => Type switch {
+		PrimitiveType.Byte => new IntegerVerificationType(),
+		PrimitiveType.Char => new IntegerVerificationType(),
+		PrimitiveType.Double => new DoubleVerificationType(),
+		PrimitiveType.Float => new FloatVerificationType(),
+		PrimitiveType.Integer => new IntegerVerificationType(),
+		PrimitiveType.Long => new LongVerificationType(),
+		PrimitiveType.Short => new IntegerVerificationType(),
+		PrimitiveType.Boolean => new IntegerVerificationType(),
+		_ => new TopVerificationType() // TODO: Or should we throw?
+	};
 }
 
 public enum PrimitiveType {

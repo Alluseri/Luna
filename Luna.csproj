@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <SelfContained>true</SelfContained>
@@ -23,9 +23,10 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\"/>
-    <!--<Compile Remove="test\**" />-->
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+    <Compile Remove="test\**" />
+    <Compile Remove="old\**" />
+    <!--<PackageReference Include="BenchmarkDotNet" Version="0.13.5" />-->
     <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
   </ItemGroup>
-
+  
 </Project>

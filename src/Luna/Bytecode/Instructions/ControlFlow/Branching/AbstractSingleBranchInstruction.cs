@@ -5,6 +5,7 @@ using System.IO;
 namespace Alluseri.Luna.Bytecode;
 
 // TODO: Every branch instruction must introduce self-integrity to ensure all its labels are present in the output code
+// This might've been introduced in RepairLabelIdentities in CodeBuilder (but it's not mandatory to enable so...)
 
 public abstract class AbstractSingleBranchInstruction : Instruction {
 	public abstract bool Conditional { get; } // Will be useful for the SMT builder

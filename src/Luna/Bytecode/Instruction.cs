@@ -1,4 +1,5 @@
 using Alluseri.Luna;
+using Alluseri.Luna.Analysis;
 using Alluseri.Luna.Internals;
 using Alluseri.Luna.Utils;
 using System;

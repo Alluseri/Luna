@@ -3,10 +3,17 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Old ignores
 test/
 writeups/
 dev/
 *.class
+
+# New ignores
+REFACTOR.md
+tests/
+dbg/
+old/
 
 # User-specific files
 *.rsuser

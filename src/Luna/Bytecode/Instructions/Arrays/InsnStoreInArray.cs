@@ -8,8 +8,7 @@ public class InsnStoreInArray : Instruction {
 	public readonly ArrayType ArrayType;
 
 	public InsnStoreInArray(ArrayType ArrayType) : base(1) {
-		if (ArrayType > ArrayType.Short)
-			throw new ArgumentOutOfRangeException(nameof(ArrayType), "Illegal array type for this operation.");
+		ArrayType.Validate();
 
 		this.ArrayType = ArrayType;
 	}

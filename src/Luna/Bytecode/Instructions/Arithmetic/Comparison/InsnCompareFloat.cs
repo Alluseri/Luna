@@ -8,8 +8,7 @@ public class InsnCompareFloat : Instruction {
 	public readonly WhenNaN WhenNaN;
 
 	public InsnCompareFloat(WhenNaN WhenNaN) : base(1) {
-		if (WhenNaN > WhenNaN.Greater)
-			throw new ArgumentOutOfRangeException(nameof(WhenNaN), "Illegal operation substitute for NaN provided.");
+		WhenNaN.Validate();
 
 		this.WhenNaN = WhenNaN;
 	}

@@ -2,6 +2,8 @@ using System;
 
 namespace Alluseri.Luna;
 
+// TODO: This system is so confusing (blame JVM engineers)
+
 public class ObjectTypeDescriptor : ReferenceTypeDescriptor {
 	private readonly string _ObjectType;
 	public override string SymbolicTerm => _ObjectType;

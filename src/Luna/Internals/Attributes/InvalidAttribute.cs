@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Alluseri.Luna.Internals;
 
+// TODO: This ToString looks ATROCIOUS bro :sob:
 public class InvalidAttribute : AttributeInfo { // Specification: All bytes will be attempted to read, the remaining length will be filled with zeroes, not truncated.
 	public ushort PoolIndex;
 	public byte[] Data;

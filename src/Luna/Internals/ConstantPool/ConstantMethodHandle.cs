@@ -5,11 +5,11 @@ using System.IO;
 namespace Alluseri.Luna.Internals;
 
 public class ConstantMethodHandle : ConstantInfo {
-	public readonly MethodHandleReferenceKind Kind;
+	public readonly MethodHandleKind Kind;
 	public readonly ushort PoolIndex;
 
-	public ConstantMethodHandle(Stream Stream) : this((MethodHandleReferenceKind) (byte) Stream.ReadByte(), Stream.ReadUShort()) { }
-	public ConstantMethodHandle(MethodHandleReferenceKind Kind, ushort PoolIndex) : base(ConstantInfoTag.MethodHandle) {
+	public ConstantMethodHandle(Stream Stream) : this((MethodHandleKind) (byte) Stream.ReadByte(), Stream.ReadUShort()) { }
+	public ConstantMethodHandle(MethodHandleKind Kind, ushort PoolIndex) : base(ConstantInfoTag.MethodHandle) {
 		this.Kind = Kind;
 		this.PoolIndex = PoolIndex;
 	}

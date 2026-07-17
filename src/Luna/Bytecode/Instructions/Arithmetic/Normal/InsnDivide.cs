@@ -9,8 +9,7 @@ public class InsnDivide : Instruction {
 	public readonly ArithmeticOperand Operand;
 
 	public InsnDivide(ArithmeticOperand Operand) : base(1) {
-		if (Operand > ArithmeticOperand.Double)
-			throw new ArgumentOutOfRangeException("Illegal arithmetic operand for this operation.");
+		Operand.Validate();
 
 		this.Operand = Operand;
 	}

@@ -8,8 +8,7 @@ public class InsnAnd : Instruction {
 	public readonly BitwiseOperand Operand;
 
 	public InsnAnd(BitwiseOperand Operand) : base(1) {
-		if (Operand > BitwiseOperand.Long)
-			throw new ArgumentOutOfRangeException(nameof(Operand), "Illegal bitwise operand for this operation.");
+		Operand.Validate();
 
 		this.Operand = Operand;
 	}
